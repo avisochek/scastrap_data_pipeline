@@ -25,7 +25,7 @@ new_batch()
 for city in cities_list:
     city = get_city(city)
     get_request_types(city)
-    #get_issues(city)
+    get_issues(city)
     get_streets(city)
     get_clusters(city)
 
