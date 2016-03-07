@@ -2,6 +2,4 @@
 *.pyc
 *~
 /reference/*
-/get_streets/*
 /tests/*
-/upload_data/*
