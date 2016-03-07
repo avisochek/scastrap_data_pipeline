@@ -1,0 +1,9 @@
+[
+  {
+    "name":"New Haven, CT",
+    "id":3039,
+    "lat":41.3100,
+    "lng":72.9236,
+    "streets_file":"new_haven.xml"
+  }
+]
