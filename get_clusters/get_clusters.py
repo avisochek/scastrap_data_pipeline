@@ -3,41 +3,11 @@
 ### geographic clusters by request type
 ### and store in database
 
-### note that rtt is short for request type title and rtid is short for request type id
-
-# rtt_dict={
-#     "1966":"Trash & Recycling",
-#     "124":"Street Lamp",
-#     "373":"Signs / Bus Shelters / Pavement Markings",
-#     "117":"Sidewalks and Curb damage",
-#     "8516":"SNOW RELATED",
-#     "116":"Potholes",
-#     "2625":"Traffic/Road Safety",
-#     "126":"Parks Request",
-#     "51":"Traffic Signal / Pedestrian Signal",
-#     "121":"Parking Violation/Abandoned Auto",
-#     "3018":"Other - city responsibility",
-#     "1251":"Private Property Issue",
-#     "1249":"Public Space, Streets and Drains",
-#     "374":"Other",
-#     "1250":"Illegal Dumping",
-#     "1853":"Tree Trimming",
-#     "6215":"Hangers",
-#     "2626":"Policing Issue",
-#     "5185":"Health Complaints",
-#     "122":"Graffiti",
-#     "372":"Parking Meter",
-#     "5743":"Bins for Trash & Recycling",
-# }
-
 from sklearn.cluster import KMeans
 import pymongo
 from pymongo import MongoClient
 import numpy as np
-from matplotlib import pyplot as plt
-from firebase import firebase
 import json
-import pickle
 import math
 import datetime
 
