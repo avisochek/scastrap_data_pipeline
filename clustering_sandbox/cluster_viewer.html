@@ -1,0 +1,152 @@
+<html>
+  <head>
+    <title>
+    </title>
+      <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
+      <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEs6NPvRS1jrPZTWGZUkdkFmIbdCPrBEo"></script>
+      <style>
+      .option {
+        height:50;
+        text-align:center;
+      }
+      .option:hover {
+        background-color:red;
+      }
+      </style>
+  </head>
+  <body>
+
+    <input id="cluster_file" type='file'>
+    <div class="container" style="display:flex;">
+    <div id="sidebar" style="background-color:grey;width:300px;height:100%;overflow-y:scroll"></div>
+    <div id="map" style="height:100%;width:100%;">
+    </div>
+<!--basic UI stuff-->
+<script>
+  $(document).ready(function(){
+    newMap();
+  });
+  $("#cluster_file").change(function(evt){
+    display_clusters(this.files[0]);
+  });
+
+  function display_clusters(file){
+    var reader = new FileReader();
+    reader.onload = function(event){
+      create_menu(JSON.parse(this.result));
+    }
+    reader.readAsText(file);
+  };
+
+  function create_menu(cluster_data){
+    var all_issues=[];
+    var ind=0;
+    cluster_data.forEach(function(cluster){
+      cluster.forEach(function(issue) {
+        all_issues.push(issue);
+      });
+      addMenuItem(cluster,ind);
+      ind+=1
+    });
+    plotMap(all_issues);
+  }
+
+  function addMenuItem(cluster,ind){
+    var element = jQuery('<div/>',{'class':'option','click':function(e){console.log(jQuery.data(e,"issues"))}});
+    element.click(function(){
+      updateMap(cluster);
+    });
+    element.html("<h1>"+ind+"</h1>")
+    $("#sidebar").append(element);
+  }
+
+</script>
+
+
+<!--google maps api functionality-->
+<script>
+  var map;
+  var markers =[];
+
+  function newMap(){
+    // Create a map object and specify the DOM element for display.
+    map = new google.maps.Map(document.getElementById('map'), {
+      scrollwheel: false,
+      zoom:8,
+      center:{"lng":-72,"lat":42}
+    });
+  };
+
+  function plotMap(issues){
+    // create new latlngbounds object
+    // which we will use to center and focus the map
+    var latlngbounds = new google.maps.LatLngBounds();
+
+    //iterate over issues populating the map and the bounds
+    issues.forEach(function(issue){
+      var loc = new google.maps.LatLng(issue.lat,issue.lng);
+      latlngbounds.extend(loc);
+      markers.push(
+        new google.maps.Marker({
+          sName:issue["issue_id"],
+          position: loc,
+          map: map,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            fillOpacity: 0.1,
+            fillColor: "blue",
+            strokeOpacity: 0.5,
+            strokeWeight: 1.0,
+            scale: 10 //pixels
+          }
+        })
+      );
+    });
+
+    //map.setCenter(latlngbounds.getCenter());
+    map.fitBounds(latlngbounds);
+  };
+
+  function updateMap(issues){
+    // create new latlngbounds object
+    // which we will use to center and focus the map
+    var latlngbounds = new google.maps.LatLngBounds();
+
+    issue_ids = issues.map(function(issue){
+      return issue.issue_id;
+    });
+
+    markers.forEach(function(marker){
+      console.log(issue_ids);
+      console.log(marker.sName);
+      if (issue_ids.indexOf(marker.sName)>0){
+        console.log("red");
+        color="red";
+      }else{
+        color="blue";
+      };
+      marker.setIcon({
+        path: google.maps.SymbolPath.CIRCLE,
+        fillOpacity: 0.5,
+        fillColor: color,
+        strokeOpacity: 0.5,
+        strokeWeight: 1.0,
+        scale: 10
+      });
+    });
+
+    issues.forEach(function(issue){
+      var loc = new google.maps.LatLng(issue.lat,issue.lng);
+      latlngbounds.extend(loc);
+    });
+
+    map.fitBounds(latlngbounds);
+  }
+</script>
+
+
+
+
+
+  </body>
+</html>
