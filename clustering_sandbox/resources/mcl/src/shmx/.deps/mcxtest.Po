@@ -1,0 +1,249 @@
+mcxtest.o: mcxtest.c /usr/include/stdio.h /usr/include/_ansi.h \
+ /usr/include/newlib.h /usr/include/sys/config.h \
+ /usr/include/machine/ieeefp.h /usr/include/sys/features.h \
+ /usr/include/cygwin/config.h /usr/include/sys/cdefs.h \
+ /usr/include/machine/_default_types.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include/stddef.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include/stdarg.h \
+ /usr/include/sys/reent.h /usr/include/_ansi.h /usr/include/sys/_types.h \
+ /usr/include/machine/_types.h /usr/include/sys/lock.h \
+ /usr/include/sys/types.h /usr/include/sys/_stdint.h \
+ /usr/include/machine/types.h /usr/include/cygwin/types.h \
+ /usr/include/endian.h /usr/include/bits/endian.h /usr/include/byteswap.h \
+ /usr/include/bits/wordsize.h /usr/include/sys/_timespec.h \
+ /usr/include/sys/sysmacros.h /usr/include/sys/stdio.h \
+ /usr/include/unistd.h /usr/include/sys/unistd.h /usr/include/getopt.h \
+ /usr/include/string.h /usr/include/sys/string.h /usr/include/stdlib.h \
+ /usr/include/machine/stdlib.h /usr/include/alloca.h \
+ /usr/include/cygwin/stdlib.h /usr/include/cygwin/wait.h \
+ /usr/include/math.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include-fixed/limits.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include-fixed/syslimits.h \
+ /usr/include/limits.h /usr/include/features.h /usr/include/ctype.h \
+ /usr/include/signal.h /usr/include/sys/signal.h \
+ /usr/include/cygwin/signal.h /usr/include/sys/ucontext.h \
+ /usr/include/time.h /usr/include/machine/time.h \
+ /usr/include/sys/timespec.h /usr/include/cygwin/time.h \
+ ../../src/impala/io.h ../../src/impala/ivp.h ../../src/impala/ivptypes.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include/float.h ../../util/types.h \
+ ../../util/inttypes.h ../../src/impala/vector.h ../../src/impala/pval.h \
+ ../../src/impala/iface.h ../../util/io.h ../../util/ting.h \
+ ../../util/types.h ../../util/inttypes.h ../../src/impala/matrix.h \
+ ../../util/ting.h ../../util/list.h ../../util/gralloc.h \
+ ../../src/impala/tab.h ../../util/hash.h ../../util/list.h \
+ ../../src/impala/matrix.h ../../src/impala/tab.h \
+ ../../src/impala/stream.h ../../src/impala/ivp.h \
+ ../../src/impala/compose.h ../../src/impala/vector.h \
+ ../../src/impala/app.h ../../src/impala/iface.h ../../src/impala/pval.h \
+ ../../util/ding.h ../../util/err.h ../../util/equate.h \
+ ../../util/minmax.h ../../util/compile.h ../../util/rand.h \
+ ../../util/array.h ../../util/opt.h ../../util/hash.h \
+ ../../src/mcl/proc.h ../../src/mcl/interpret.h ../../src/mcl/expand.h \
+ /usr/include/pthread.h /usr/include/sched.h /usr/include/sys/sched.h \
+ ../../util/heap.h ../../src/mcl/procinit.h ../../src/mcl/alg.h \
+ ../../src/mcl/proc.h ../../src/mcl/transform.h ../../src/clew/clm.h \
+ ../../src/clew/cat.h
+
+/usr/include/stdio.h:
+
+/usr/include/_ansi.h:
+
+/usr/include/newlib.h:
+
+/usr/include/sys/config.h:
+
+/usr/include/machine/ieeefp.h:
+
+/usr/include/sys/features.h:
+
+/usr/include/cygwin/config.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/machine/_default_types.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include/stddef.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include/stdarg.h:
+
+/usr/include/sys/reent.h:
+
+/usr/include/_ansi.h:
+
+/usr/include/sys/_types.h:
+
+/usr/include/machine/_types.h:
+
+/usr/include/sys/lock.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/sys/_stdint.h:
+
+/usr/include/machine/types.h:
+
+/usr/include/cygwin/types.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/byteswap.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/sys/_timespec.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/sys/stdio.h:
+
+/usr/include/unistd.h:
+
+/usr/include/sys/unistd.h:
+
+/usr/include/getopt.h:
+
+/usr/include/string.h:
+
+/usr/include/sys/string.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/machine/stdlib.h:
+
+/usr/include/alloca.h:
+
+/usr/include/cygwin/stdlib.h:
+
+/usr/include/cygwin/wait.h:
+
+/usr/include/math.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include-fixed/limits.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/features.h:
+
+/usr/include/ctype.h:
+
+/usr/include/signal.h:
+
+/usr/include/sys/signal.h:
+
+/usr/include/cygwin/signal.h:
+
+/usr/include/sys/ucontext.h:
+
+/usr/include/time.h:
+
+/usr/include/machine/time.h:
+
+/usr/include/sys/timespec.h:
+
+/usr/include/cygwin/time.h:
+
+../../src/impala/io.h:
+
+../../src/impala/ivp.h:
+
+../../src/impala/ivptypes.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.9.3/include/float.h:
+
+../../util/types.h:
+
+../../util/inttypes.h:
+
+../../src/impala/vector.h:
+
+../../src/impala/pval.h:
+
+../../src/impala/iface.h:
+
+../../util/io.h:
+
+../../util/ting.h:
+
+../../util/types.h:
+
+../../util/inttypes.h:
+
+../../src/impala/matrix.h:
+
+../../util/ting.h:
+
+../../util/list.h:
+
+../../util/gralloc.h:
+
+../../src/impala/tab.h:
+
+../../util/hash.h:
+
+../../util/list.h:
+
+../../src/impala/matrix.h:
+
+../../src/impala/tab.h:
+
+../../src/impala/stream.h:
+
+../../src/impala/ivp.h:
+
+../../src/impala/compose.h:
+
+../../src/impala/vector.h:
+
+../../src/impala/app.h:
+
+../../src/impala/iface.h:
+
+../../src/impala/pval.h:
+
+../../util/ding.h:
+
+../../util/err.h:
+
+../../util/equate.h:
+
+../../util/minmax.h:
+
+../../util/compile.h:
+
+../../util/rand.h:
+
+../../util/array.h:
+
+../../util/opt.h:
+
+../../util/hash.h:
+
+../../src/mcl/proc.h:
+
+../../src/mcl/interpret.h:
+
+../../src/mcl/expand.h:
+
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/sys/sched.h:
+
+../../util/heap.h:
+
+../../src/mcl/procinit.h:
+
+../../src/mcl/alg.h:
+
+../../src/mcl/proc.h:
+
+../../src/mcl/transform.h:
+
+../../src/clew/clm.h:
+
+../../src/clew/cat.h:
