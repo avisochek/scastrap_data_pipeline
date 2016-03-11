@@ -1,6 +1,7 @@
-#!update_db.py
+#!update_local_db_and_upload.py
 ###first update local mongodb database,
-###then update postgreSQL database.
+###then get new street names and clusters,
+###then upload to application database.
 import json
 import sys
 sys.path.append("download_data/")
