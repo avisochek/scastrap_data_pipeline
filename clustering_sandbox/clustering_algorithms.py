@@ -1,7 +1,7 @@
 #!Clustering Algorithms
 
-## Design clustering algorithms here to
-## be tested on the data.
+## Design clustering algorithms here that
+## will be tested out on the data.
 
 ## Each clustering algorithm should be specified
 ## as a function that takes as arguments
