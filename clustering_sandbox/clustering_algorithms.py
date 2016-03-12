@@ -24,6 +24,8 @@ from geopy import distance
 
 import csv
 
+import sys
+sys.path.append("resources/mcl")
 ## function to translate between
 ## cluster labels and nested indices
 def labels_to_index(cluster_labels):
@@ -55,19 +57,22 @@ def mcl(lngs,lats,city_lng,city_lat):
     graph=[]
     used_inds=[]
     for i in range(len(lngs)):
-        for j in range(i,len(lngs)):
+        for j in range(i+1,len(lngs)):
             distance=geopy.distance.vincenty(
-					tuple(lngs[i],lats[i]]),
-					tuple(lngs[j],lats[j])).feet
-            if distance<200
-                graph.append[[i,j,distance]]
+					tuple([lngs[i],lats[i]]),
+					tuple([lngs[j],lats[j]])).feet
+            if distance<200:
+                graph.append([i,j,distance])
     with open("mcl_data/mcl_input_data.tsv","w") as f:
 		for row in graph:
 			f.write(str(row[0])+"\t"+str(row[1])+"\t"+str(row[2])+"\n")
-    "mcl mcl_data/mcl_input_data.tsv --abc -o mcl_data/mcl_output_data.tsv"
+    os.system("mcl mcl_data/mcl_input_data.tsv --abc -o mcl_data/mcl_output_data.tsv")
     output_data=[]
     with open("mcl_data/mcl_output_data.tsv","r") as f:
-        tsvin = csv.reader(tsvin,delimiter='\t')
+        tsvin = csv.reader(f,delimiter='\t')
         for row in tsvin:
-            output_data.append(row)
+            int_row=[]
+            for ind in row:
+                int_row.append(int(ind))
+            output_data.append(int_row)
     return output_data
