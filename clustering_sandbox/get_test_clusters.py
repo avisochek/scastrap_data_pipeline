@@ -43,7 +43,7 @@ for request_type in db.request_types.find({"city_id":city_id}):
     ## issues in the collection, say 50
     if len(lngs)>50:
         ## get clusters
-        clusters_ind = cluster_issues(lngs,lats,city["lng"],city["lat"])
+        clusters_ind = cluster_issues(lngs,lats,city)
 
         ## translate array of indices into array of issue ids
         clusters = []

@@ -6,8 +6,7 @@
 ## Each clustering algorithm should be specified
 ## as a function that takes as arguments
 ## a list of longitude coordinates, a list of
-## latitude coordinates and the longitude and
-## latitude coordinates of the city, and returns
+## latitude coordinates and the city info, and returns
 ## a list of "clusters", each cluster being a list
 ## of indices of the coordinates involved...
 
@@ -37,7 +36,9 @@ def labels_to_index(cluster_labels):
 
 ## here's k-means clustering as an example of
 ## how to construct the clustering algorithm
-def k_means_clustering(lngs,lats,city_lng,city_lat):
+def k_means_clustering(lngs,lats,city):
+    city_lat=city["lat"];
+    city_lng=city["lng"]
     ## scale the longitudinal axis to appriximate
     ## cartesian coordinates...
     lngs = np.array(lngs)*math.cos(city_lat)
@@ -52,7 +53,9 @@ def k_means_clustering(lngs,lats,city_lng,city_lat):
     ## output from cluster labels...
     return labels_to_index(cluster_labels)
 
-def mcl(lngs,lats,city_lng,city_lat):
+def mcl(lngs,lats,city):
+    city_lng=city["lng"]
+    city_lat=city["lat"]
     ## generate graph
     graph=[]
     used_inds=[]

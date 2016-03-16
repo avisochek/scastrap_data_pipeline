@@ -17,7 +17,8 @@ def get_city(city):
             "name":city["name"],
             "bounds":city_bounds,
             "lat":city["lat"],
-            "lng":city["lng"]})
+            "lng":city["lng"],
+            "area":city["area"]})
 
     city_bounds = db.cities.find_one({"id":city["id"]})["bounds"]
     city["bounds"] = city_bounds
