@@ -4,9 +4,9 @@
 #congfig...
 
 city_id = 3039 # New Haven, CT is the default
-base_filename = "affinityprop" ## "clusters" is the default
+base_filename = "db"
 ## import the clustering algorithm that we want to use...
-from clustering_algorithms import affinityprop as cluster_issues## kmeans is the default
+from clustering_algorithms import db as cluster_issues## kmeans is the default
 
 #######
 #######
