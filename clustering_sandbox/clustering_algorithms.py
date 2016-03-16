@@ -14,6 +14,7 @@
 ## imports:
 import math
 from sklearn.cluster import KMeans
+from sklearn.cluster import AgglomerativeClustering
 import numpy as np
 import os
 
@@ -52,6 +53,8 @@ def k_means_clustering(lngs,lats,city):
     ## use labels_to_index function to get
     ## output from cluster labels...
     return labels_to_index(cluster_labels)
+	
+	
 
 def mcl(lngs,lats,city):
     city_lng=city["lng"]
@@ -79,3 +82,20 @@ def mcl(lngs,lats,city):
                 int_row.append(int(ind))
             output_data.append(int_row)
     return output_data
+
+	
+def agglom(lngs, lats, city):
+	city_area = city["area"]
+	
+	city_lng=city["lng"]
+	city_lat=city["lat"]
+	lngs = np.array(lngs)*math.cos(city_lat)
+	
+	agglomerative = AgglomerativeClustering(n_clusters = int(city_area/7290000.))
+	agglomerative.fit(np.array([lngs, lats]).transpose())
+	cluster_labels = np.array(agglomerative.labels_)
+	
+	return labels_to_index(cluster_labels)
+	
+	
+	
