@@ -16,6 +16,7 @@ import math
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.cluster import AffinityPropagation
+from sklearn.cluster import DBSCAN
 import numpy as np
 import os
 
@@ -109,6 +110,19 @@ def affinityprop(lngs, lats, city):
 	cluster_labels = np.array(affinity.labels_)
 	
 	return labels_to_index(cluster_labels)
+
+def db(lngs, lats, city):
+	city_area = city["area"]
+	city_lng = city["lng"]
+	city_lat = city["lat"]
+	lngs = np.array(lngs)*math.cos(city_lat)
+	
+	dbscan = DBSCAN(metric='euclidean')
+	dbscan.fit(np.array([lngs, lats]).transpose())
+	cluster_labels = np.array(dbscan.labels_)
+	
+	return labels_to_index(cluster_labels)
+	
 	
 	
 	
