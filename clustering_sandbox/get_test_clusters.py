@@ -4,9 +4,9 @@
 #congfig...
 
 city_id = 3039 # New Haven, CT is the default
-fuck_everything = "mcl_v1" ## "clusters" is the default
+fuck_everythingaffin = "mcl_v1" ## "clusters" is the default
 ## import the clustering algorithm that we want to use...
-from clustering_algorithms import agglom as cluster_issues## kmeans is the default
+from clustering_algorithms import affinityprop as cluster_issues## kmeans is the default
 
 #######
 #######
@@ -56,7 +56,7 @@ for request_type in db.request_types.find({"city_id":city_id}):
                     "lng":lngs[ind]})
             clusters.append(cluster)
         ## write cluster data to a json file
-        output_filepath = "cluster_data/"+fuck_everything
+        output_filepath = "cluster_data/"+fuck_everythingaffin
         output_filepath += "_rtid-"+str(request_type_id)
         output_filepath += "_cityid-"+str(city["id"])
         with open(output_filepath,"w") as f:

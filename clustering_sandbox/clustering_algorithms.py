@@ -15,6 +15,7 @@
 import math
 from sklearn.cluster import KMeans
 from sklearn.cluster import AgglomerativeClustering
+from sklearn.cluster import AffinityPropagation
 import numpy as np
 import os
 
@@ -46,7 +47,7 @@ def k_means_clustering(lngs,lats,city):
 
     ## using n_issues/5 to determine k
     ## not the most objective method, but its a start...
-    kmeans = KMeans(n_clusters=int(len(lngs)/5.))
+    kmeans = KMeans(n_clusters = int(city_area/7290000.))
     kmeans.fit(np.array([lngs,lats]).transpose())
 
     cluster_labels = np.array(kmeans.labels_)
@@ -94,6 +95,18 @@ def agglom(lngs, lats, city):
 	agglomerative = AgglomerativeClustering(n_clusters = int(city_area/7290000.))
 	agglomerative.fit(np.array([lngs, lats]).transpose())
 	cluster_labels = np.array(agglomerative.labels_)
+	
+	return labels_to_index(cluster_labels)
+
+def affinityprop(lngs, lats, city):
+	city_area = city["area"]
+	city_lng = city["lng"]
+	city_lat = city["lat"]
+	lngs = np.array(lngs)*math.cos(city_lat)
+	
+	affinity = AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False) 
+	affinity.fit(np.array([lngs, lats]).transpose())
+	cluster_labels = np.array(affinity.labels_)
 	
 	return labels_to_index(cluster_labels)
 	
