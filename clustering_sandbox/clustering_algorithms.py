@@ -39,7 +39,7 @@ def labels_to_index(cluster_labels):
 
 ## here's k-means clustering as an example of
 ## how to construct the clustering algorithm
-def k_means_clustering(lngs,lats,city):
+def k_means_clustering(lngs,lats,city, cluster_diameter):
     city_lat=city["lat"];
     city_lng=city["lng"]
     ## scale the longitudinal axis to appriximate
@@ -48,17 +48,17 @@ def k_means_clustering(lngs,lats,city):
 
     ## using n_issues/5 to determine k
     ## not the most objective method, but its a start...
-    kmeans = KMeans(n_clusters = int(city_area/7290000.))
+    kmeans = KMeans(n_clusters = int(city_area/(cluster_diameter**2)))
     kmeans.fit(np.array([lngs,lats]).transpose())
 
     cluster_labels = np.array(kmeans.labels_)
     ## use labels_to_index function to get
     ## output from cluster labels...
     return labels_to_index(cluster_labels)
-	
-	
 
-def mcl(lngs,lats,city):
+
+
+def mcl(lngs,lats,city, cluster_diameter):
     city_lng=city["lng"]
     city_lat=city["lat"]
     ## generate graph
@@ -67,15 +67,18 @@ def mcl(lngs,lats,city):
     for i in range(len(lngs)):
         for j in range(i+1,len(lngs)):
             distance=geopy.distance.vincenty(
-					tuple([lngs[i],lats[i]]),
-					tuple([lngs[j],lats[j]])).feet
-            if distance<200:
-                graph.append([i,j,distance])
+				tuple([lngs[i],lats[i]]),
+				tuple([lngs[j],lats[j]])).feet
+            if distance<cluster_diameter:
+                graph.append([i,j,1])
+    ## write graph to mcl input file
     with open("mcl_data/mcl_input_data.tsv","w") as f:
 		for row in graph:
 			f.write(str(row[0])+"\t"+str(row[1])+"\t"+str(row[2])+"\n")
+    ## run mcl using command line
     os.system("mcl mcl_data/mcl_input_data.tsv --abc -o mcl_data/mcl_output_data.tsv")
     output_data=[]
+    ## read in output file from previous step
     with open("mcl_data/mcl_output_data.tsv","r") as f:
         tsvin = csv.reader(f,delimiter='\t')
         for row in tsvin:
@@ -85,44 +88,40 @@ def mcl(lngs,lats,city):
             output_data.append(int_row)
     return output_data
 
-	
-def agglom(lngs, lats, city):
+
+def agglom(lngs, lats, city, cluster_diameter):
 	city_area = city["area"]
-	
+
 	city_lng=city["lng"]
 	city_lat=city["lat"]
 	lngs = np.array(lngs)*math.cos(city_lat)
-	
-	agglomerative = AgglomerativeClustering(n_clusters = int(city_area/7290000.))
-	agglomerative.fit(np.array([lngs, lats]).transpose())
+
+	agglomerative = AgglomerativeClustering(n_clusters = int(city_area/cluster_diameter**2))
+	agglomerative.fit(np.array([lngs, laaffinitypropts]).transpose())
 	cluster_labels = np.array(agglomerative.labels_)
-	
+
 	return labels_to_index(cluster_labels)
 
-def affinityprop(lngs, lats, city):
+def affinityprop(lngs, lats, city, cluster_diameter):
 	city_area = city["area"]
 	city_lng = city["lng"]
 	city_lat = city["lat"]
 	lngs = np.array(lngs)*math.cos(city_lat)
-	
-	affinity = AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False) 
+
+	affinity = AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False)
 	affinity.fit(np.array([lngs, lats]).transpose())
 	cluster_labels = np.array(affinity.labels_)
-	
+
 	return labels_to_index(cluster_labels)
 
-def db(lngs, lats, city):
+def db(lngs, lats, city, cluster_diameter):
 	city_area = city["area"]
 	city_lng = city["lng"]
 	city_lat = city["lat"]
 	lngs = np.array(lngs)*math.cos(city_lat)
-	
+
 	dbscan = DBSCAN(metric='euclidean')
 	dbscan.fit(np.array([lngs, lats]).transpose())
 	cluster_labels = np.array(dbscan.labels_)
-	
+
 	return labels_to_index(cluster_labels)
-	
-	
-	
-	

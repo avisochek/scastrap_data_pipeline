@@ -4,10 +4,13 @@
 #congfig...
 
 city_id = 3039 # New Haven, CT is the default
-base_filename = "db"
+base_filename = "mcl3"
 ## import the clustering algorithm that we want to use...
-from clustering_algorithms import db as cluster_issues## kmeans is the default
-
+from clustering_algorithms import mcl as cluster_issues## kmeans is the default
+## set minimum number of issues for each set of clusters
+min_issues=100
+##set the cluster diameter
+cluster_diameter=1000
 #######
 #######
 #######
@@ -41,9 +44,17 @@ for request_type in db.request_types.find({"city_id":city_id}):
         issue_ids.append(issue["id"])
     ## check that there are a reasonable number of
     ## issues in the collection, say 50
-    if len(lngs)>100:
+    if len(lngs)>min_issues:
         ## get clusters
-        clusters_ind = cluster_issues(lngs,lats,city)
+        clusters_ind = cluster_issues(lngs,lats,city,cluster_diameter)
+        ## the last cluster should represent
+        ## all of the issues that aren't used
+        used_issues_ind=[]
+        for cluster_ind in clusters_ind:
+            used_issues_ind+=cluster_ind
+        unused_issues_ind=[ind for ind in range(len(issue_ids)) if not ind in used_issues_ind]
+        print request_type_id,len(used_issues_ind+unused_issues_ind)
+        clusters_ind.append(unused_issues_ind)
 
         ## translate array of indices into array of issue ids
         clusters = []
@@ -55,6 +66,7 @@ for request_type in db.request_types.find({"city_id":city_id}):
                     "lat":lats[ind],
                     "lng":lngs[ind]})
             clusters.append(cluster)
+
         ## write cluster data to a json file
         output_filepath = "cluster_data/"+base_filename
         output_filepath += "_rtid-"+str(request_type_id)

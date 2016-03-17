@@ -27,7 +27,7 @@
     newMap();
   });
   $("#cluster_file").change(function(evt){
-    display_clusters(this.files[0]);
+    display_clusters(this.files[0]);affinityprop
   });
 
   function display_clusters(file){
@@ -41,6 +41,7 @@
   function create_menu(cluster_data){
     var all_issues=[];
     var ind=0;
+    $("#sidebar").html("")
     cluster_data.forEach(function(cluster){
       cluster.forEach(function(issue) {
         all_issues.push(issue);
@@ -81,7 +82,8 @@
     // create new latlngbounds object
     // which we will use to center and focus the map
     var latlngbounds = new google.maps.LatLngBounds();
-
+    markers.forEach(function(marker){marker.setMap(null)});
+    markers=[];
     //iterate over issues populating the map and the bounds
     issues.forEach(function(issue){
       var loc = new google.maps.LatLng(issue.lat,issue.lng);
