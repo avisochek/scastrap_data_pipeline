@@ -59,6 +59,8 @@ def k_means_clustering(lngs,lats,city, cluster_diameter):
 
 
 def mcl(lngs,lats,city, cluster_diameter):
+    lat_to_feet_multiplier=288200.
+    lng_multiplier=math.cos(city["lat"])
     city_lng=city["lng"]
     city_lat=city["lat"]
     ## generate graph
@@ -66,11 +68,14 @@ def mcl(lngs,lats,city, cluster_diameter):
     used_inds=[]
     for i in range(len(lngs)):
         for j in range(i+1,len(lngs)):
-            distance=geopy.distance.vincenty(
-				tuple([lngs[i],lats[i]]),
-				tuple([lngs[j],lats[j]])).feet
+            distance_y=np.abs(lats[i]-lats[j])*lat_to_feet_multiplier
+            distance_x=np.abs(lngs[i]-lngs[j])*lat_to_feet_multiplier*lng_multiplier
+            distance=math.sqrt(distance_x**2+distance_y**2)
+            # distance=geopy.distance.vincenty(
+			# 	tuple([lngs[i],lats[i]]),
+			# 	tuple([lngs[j],lats[j]])).feet
             if distance<cluster_diameter:
-                graph.append([i,j,1])
+                graph.append([i,j,1-distance/(2*(cluster_diameter))])
     ## write graph to mcl input file
     with open("mcl_data/mcl_input_data.tsv","w") as f:
 		for row in graph:
