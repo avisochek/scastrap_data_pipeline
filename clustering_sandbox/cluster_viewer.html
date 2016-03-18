@@ -27,13 +27,14 @@
     newMap();
   });
   $("#cluster_file").change(function(evt){
-    display_clusters(this.files[0]);affinityprop
+    display_clusters(this.files[0]);
   });
 
   function display_clusters(file){
     var reader = new FileReader();
     reader.onload = function(event){
-      create_menu(JSON.parse(this.result));
+      var cluster_data=$.parseJSON(this.result);
+      create_menu(cluster_data);
     }
     reader.readAsText(file);
   };
@@ -55,6 +56,7 @@
   function addMenuItem(cluster,ind){
     var element = jQuery('<div/>',{'class':'option','click':function(e){console.log(jQuery.data(e,"issues"))}});
     element.click(function(){
+      console.log(cluster.length)
       updateMap(cluster);
     });
     element.html("<h1>"+ind+"</h1>")
@@ -117,11 +119,13 @@
     issue_ids = issues.map(function(issue){
       return issue.issue_id;
     });
-
+    //console.log(issues.length);
+    //console.log(issue_ids.length);
+    var color;
     markers.forEach(function(marker){
-      console.log(issue_ids);
-      console.log(marker.sName);
-      if (issue_ids.indexOf(marker.sName)>0){
+      //console.log(issue_ids);
+      //console.log(marker.sName);
+      if (issue_ids.indexOf(marker.sName)>-1){
         console.log("red");
         color="red";
       }else{

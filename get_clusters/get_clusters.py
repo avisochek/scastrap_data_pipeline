@@ -10,6 +10,7 @@ import numpy as np
 import json
 import math
 import datetime
+from mcl import mcl
 
 def new_batch():
     client = MongoClient()
@@ -32,26 +33,13 @@ def get_clusters(city):
     else:
         current_cluster_id = 0
 
-    lngs=[]
-    lats=[]
-    issue_ids=[]
-    request_type_ids=[]
-    for issue in db.issues.find({"city_id":city["id"]}):
-        ## only create clusters for unresolved issues
-        if issue["status"]=="Open" or issue["status"]=="Acknowledged":
-            lats.append(issue["lat"])
-            lngs.append(issue["lng"])
-            issue_ids.append(issue["id"])
-            request_type_ids.append(issue["request_type_id"])
+    ## get request_type_ids
+    request_type_ids=[request_type["id"] for request_type in db.request_types.find({"city_id":city["id"]})]
 
-    ## in order to approximate cartesian coordinates,
-    ## scale the longitude values based on the city latitude
-    scale_factor=math.cos((3.1415*city["lat"]/180.0))
-    lngs_scaled=np.array(lngs)*scale_factor
-
-    ## put lats and request_type_ids in a numpy array as well
+    ##
     lats = np.array(lats)
-    request_type_ids = np.array(request_type_ids)
+    lngs=np.array(lngs)
+
 
     ## iterate through request_types
     ## and create a set of clusters for each
@@ -63,21 +51,25 @@ def get_clusters(city):
     print len(request_type_ids)
     for request_type_id in list(set(request_type_ids)):
         print "....clustering "+ str(request_type_id)
-        current_request_type_ind=(request_type_ids==request_type_id).nonzero()[0]
+        lngs,lats,issue_ids=[],[],[]
+        for issue in db.issues.find({
+            "city_id":city["id"],
+            "request_type_id":request_type["id"],
+            "status":{"$in":["Open","Acknowledged"]}}):
+            lngs.append(issue["lng"])
+            lats.append(issue["lats"])
+            issue_ids.append(issue["id"])
 
-        if len(current_request_type_ind)>50:
+
+        if len(ids)>50:
             current_lngs = lngs_scaled[current_request_type_ind]
             current_lats = lats[current_request_type_ind]
 
-            ## actual clustering happens here
-            cluster = KMeans(len(current_request_type_ind)/5)
-            cluster.fit(np.array([current_lngs,current_lats]).transpose())
-            #cluster_centers = cluster.cluster_centers_
-            cluster_labels = np.array(cluster.labels_)
+            ## actual clustering happens here using mcl
+            clusters_ind=mcl(lngs,lats,city)
 
-            for cluster in list(set(cluster_labels)):
+            for cluster_ind in clusters_ind:
                 ## map the cluster labels to the index of the issue ids
-                current_cluster_ind=current_request_type_ind[cluster_labels==cluster]
                 current_cluster_id+=1
                 db.clusters.insert_one({
                     "id":current_cluster_id,
@@ -88,7 +80,7 @@ def get_clusters(city):
 
                 ## cluster issue relationships are stored separately
                 ## to allow for multiple batches
-                for current_issue_ind in current_cluster_ind:
+                for issue_ind in cluster_ind:
                     db.clusters_issues.insert_one({
-                        "issue_id":issue_ids[current_issue_ind],
+                        "issue_id":issue_ids[issue_ind],
                         "cluster_id":current_cluster_id})

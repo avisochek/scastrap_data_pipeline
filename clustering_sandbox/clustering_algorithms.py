@@ -26,8 +26,6 @@ from geopy import distance
 
 import csv
 
-import sys
-sys.path.append("resources/mcl")
 ## function to translate between
 ## cluster labels and nested indices
 def labels_to_index(cluster_labels):
@@ -75,13 +73,13 @@ def mcl(lngs,lats,city, cluster_diameter):
 			# 	tuple([lngs[i],lats[i]]),
 			# 	tuple([lngs[j],lats[j]])).feet
             if distance<cluster_diameter:
-                graph.append([i,j,1-distance/(2*(cluster_diameter))])
+                graph.append([i,j,1-distance/(1.5*(cluster_diameter))])
     ## write graph to mcl input file
     with open("mcl_data/mcl_input_data.tsv","w") as f:
 		for row in graph:
 			f.write(str(row[0])+"\t"+str(row[1])+"\t"+str(row[2])+"\n")
     ## run mcl using command line
-    os.system("mcl mcl_data/mcl_input_data.tsv --abc -o mcl_data/mcl_output_data.tsv")
+    os.system("mcl mcl_data/mcl_input_data.tsv -I 3 --abc -o mcl_data/mcl_output_data.tsv")
     output_data=[]
     ## read in output file from previous step
     with open("mcl_data/mcl_output_data.tsv","r") as f:
@@ -95,17 +93,19 @@ def mcl(lngs,lats,city, cluster_diameter):
 
 
 def agglom(lngs, lats, city, cluster_diameter):
-	city_area = city["area"]
+    city_area = city["area"]
 
-	city_lng=city["lng"]
-	city_lat=city["lat"]
-	lngs = np.array(lngs)*math.cos(city_lat)
+    city_lng=city["lng"]
+    city_lat=city["lat"]
+    lngs = np.array(lngs)*math.cos(city_lat)
 
-	agglomerative = AgglomerativeClustering(n_clusters = int(city_area/cluster_diameter**2))
-	agglomerative.fit(np.array([lngs, laaffinitypropts]).transpose())
-	cluster_labels = np.array(agglomerative.labels_)
+    n_clusters=int(city_area/(cluster_diameter**2))
 
-	return labels_to_index(cluster_labels)
+    agglomerative = AgglomerativeClustering(n_clusters = n_clusters)
+    agglomerative.fit(np.array([lngs, lats]).transpose())
+    cluster_labels = np.array(agglomerative.labels_)
+
+    return labels_to_index(cluster_labels)
 
 def affinityprop(lngs, lats, city, cluster_diameter):
 	city_area = city["area"]

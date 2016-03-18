@@ -1,10 +1,10 @@
 #######
 #######
 #######
-#congfig...
+#congfig... set parameters below
 
 city_id = 3039 # New Haven, CT is the default
-base_filename = "mcl4"
+base_filename = "mcl5"
 ## import the clustering algorithm that we want to use...
 from clustering_algorithms import mcl as cluster_issues## kmeans is the default
 ## set minimum number of issues for each set of clusters
