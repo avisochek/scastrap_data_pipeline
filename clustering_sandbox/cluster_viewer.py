@@ -2,7 +2,7 @@ import json
 from matplotlib import pyplot as plt
 import numpy as np
 
-filepath="cluster_data/mcl5_rtid-51_cityid-3039"
+filepath="cluster_data/mcl5_rtid-373_cityid-3039"
 with open(filepath,"r") as f:
     data=json.load(f)
 plt.figure()
