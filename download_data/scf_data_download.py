@@ -24,7 +24,7 @@ def download_request_types(city):
     response=urllib2.urlopen(request_url)
     request_types_dict=json.loads(response.read())
     for request_type in request_types_dict["request_types"]:
-        if request_type["organization"]=="New Haven":
+        if request_type["organization"] in city["organizations"]:
             request_type_id = request_type["url"].split("/request_types/")[1]
             request_type_name=request_type["title"]
             request_types.append({

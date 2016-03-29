@@ -9,68 +9,66 @@ def get_streets(city):
     client = MongoClient()
     db= client.scf_data
 
-    ## iterate over new streets,
-    ## either searching the data
-    ## for new streets or assigning
-    ## issue to existing street id
-    new_street_names=[]
-    new_street_ids=[]
-    new_street_copies=[]
-    new_street_copies_ids=[]
+    ## Iterate over new issues.
+    ## If street name is found, add to the list,
+    ## otherwise assign a street_id of 0 to the issue.
+    street_names=[]
+    issue_ids=[]
     print ".......getting street names..."
-    for issue in db.issues.find({"city_id":city["id"]}):
-        if issue["street_id"]==-1:
-            street_name=get_street_name(issue["address"])
-            street=db.streets.find_one({
-                "city_id":city["id"],
-                "name":street_name})
-            if street:
+    for issue in db.issues.find(
+        {"city_id":city["id"],
+        "street_id":-1}):
+
+        street_name=get_street_name(issue)
+        if street_name:
+            street_names.append(street_name)
+            issue_ids.append(issue["id"])
+        else:
+            db.issues.update_one(
+                {"id":issue_ids[i]},{"$set":
+                {"street_id":street["id"]}}))
+
+    ## Iterate over street names of new issues.
+    ## If street name with the current city is
+    ## in the database, assign current issue the
+    ## id of identified street, otherwise, find the
+    ## new street and add it to the database...
+    for ind in range(len(street_names)):
+        street=db.streets.find_one({
+            "city_id":city["id"],
+            "name":street_name})
+
+        if street:
+            db.issues.update_one(
+                {"id":issue_ids[i]},{"$set":
+                {"street_id":street["id"]}})
+
+        else:
+            street_length = get_street_length(street_names[i],city)
+
+            if street_length:
+                if db.streets.find().count()>0:
+                    last_street_id=db.streets.find_one(sort="id",-1)["id"]
+                else:
+                    ## Initialize streets db with
+                    ## street 0
+                    db.streets.insert_one({
+                        "id":0,
+                        "name":"none",
+                        "city_id":"none",
+                        "length":1
+                    })
+                    last_street_id=0
+
+                db.streets.insert_one({
+                    "id":last_street_id+1,
+                    "name":new_street_names[ind],
+                    "city_id":city["id"],
+                    "length":street_lengths[new_street_names[ind]]})
                 db.issues.update_one(
-                    {"id":issue["id"]},{"$set":
-                    {"street_id":street["id"]}})
-            elif street_name not in new_street_names:
-                ## store new street names in a list to process all at once
-                ## to save time (parsing the xml file takes forever...)
-                new_street_names.append(street_name)
-                new_street_ids.append(issue["id"])
+                    {"id":new_street_ids[ind]},
+                    {"$set":{"street_id":last_street_id+1}})
             else:
-                ## store copies of new streets in a separate list
-                new_street_copies.append(street_name)
-                new_street_copies_ids.append(issue["id"])
-
-    ## street_lengths is a dictionary, with keys as the name of
-    ## each street that was found, and values representing the
-    ## length of each street
-    street_lengths = get_street_lengths(new_street_names,city)
-    for ind in range(len(new_street_names)):
-        if new_street_names[ind] in street_lengths.keys():
-            if db.streets.find().count()>0:
-                last_street_id=db.streets.find().sort("id",pymongo.DESCENDING)[0]["id"]
-            else:
-                last_street_id=0
-            db.streets.insert_one({
-                "id":last_street_id+1,
-                "name":new_street_names[ind],
-                "city_id":city["id"],
-                "length":street_lengths[new_street_names[ind]]})
-            db.issues.update_one(
-                {"id":new_street_ids[ind]},
-                {"$set":{"street_id":last_street_id+1}})
-        else:
-            db.issues.update_one(
-                {"id":new_street_ids[ind]},
-                {"$set":{"street_id":0}})
-
-    ## update copies of new street names separately...
-    for ind in range(len(new_street_copies)):
-        if new_street_copies[ind] in street_lengths.keys():
-            street_id=db.streets.find_one({
-                "city_id":city["id"],
-                "name":new_street_copies[ind]})["id"]
-            db.issues.update_one(
-                {"id":new_street_copies_ids[ind]},
-                {"$set":{"street_id":street_id}})
-        else:
-            db.issues.update_one(
-                {"id":new_street_copies_ids[ind]},
-                {"$set":{"street_id":0}})
+                db.issues.update_one(
+                    {"id":new_street_ids[ind]},
+                    {"$set":{"street_id":0}})

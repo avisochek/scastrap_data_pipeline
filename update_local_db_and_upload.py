@@ -24,7 +24,7 @@ new_batch()
 ## 2. iterate through cities in list
 ## updating local db in the process...
 for city in cities_list:
-    city = get_city(city)
+    get_city(city)
     get_request_types(city)
     get_issues(city)
     get_streets(city)
