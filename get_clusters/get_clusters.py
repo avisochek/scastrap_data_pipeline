@@ -7,10 +7,8 @@ from sklearn.cluster import KMeans
 import pymongo
 from pymongo import MongoClient
 import numpy as np
-import json
-import math
 import datetime
-from mcl import mcl
+from qwer import mcl
 
 def new_batch():
     client = MongoClient()
@@ -23,6 +21,7 @@ def new_batch():
 
 
 def get_clusters(city):
+    cluster_diameter=1000
     ## connect to to the database and load issues
     client = MongoClient()
     db=client.scf_data
@@ -35,10 +34,6 @@ def get_clusters(city):
 
     ## get request_type_ids
     request_type_ids=[request_type["id"] for request_type in db.request_types.find({"city_id":city["id"]})]
-
-    ##
-    lats = np.array(lats)
-    lngs=np.array(lngs)
 
 
     ## iterate through request_types
@@ -57,30 +52,25 @@ def get_clusters(city):
             "request_type_id":request_type["id"],
             "status":{"$in":["Open","Acknowledged"]}}):
             lngs.append(issue["lng"])
-            lats.append(issue["lats"])
+            lats.append(issue["lat"])
             issue_ids.append(issue["id"])
 
+        ## actual clustering happens here using mcl
+        clusters_ind=mcl(lngs,lats,city,cluster_diameter)
 
-        if len(ids)>50:
-            current_lngs = lngs_scaled[current_request_type_ind]
-            current_lats = lats[current_request_type_ind]
+        for cluster_ind in clusters_ind:
+            ## map the cluster labels to the index of the issue ids
+            current_cluster_id+=1
+            db.clusters.insert_one({
+                "id":current_cluster_id,
+                "batch_id":current_batch_id,
+                "request_type_id":request_type_id,
+                "city_id":city["id"],
+                "score":len(cluster_ind)})
 
-            ## actual clustering happens here using mcl
-            clusters_ind=mcl(lngs,lats,city)
-
-            for cluster_ind in clusters_ind:
-                ## map the cluster labels to the index of the issue ids
-                current_cluster_id+=1
-                db.clusters.insert_one({
-                    "id":current_cluster_id,
-                    "batch_id":current_batch_id,
-                    "request_type_id":request_type_id,
-                    "city_id":city["id"],
-                    "score":len(current_cluster_ind)})
-
-                ## cluster issue relationships are stored separately
-                ## to allow for multiple batches
-                for issue_ind in cluster_ind:
-                    db.clusters_issues.insert_one({
-                        "issue_id":issue_ids[issue_ind],
-                        "cluster_id":current_cluster_id})
+            ## cluster issue relationships are stored separately
+            ## to allow for multiple batches
+            for issue_ind in cluster_ind:
+                db.clusters_issues.insert_one({
+                    "issue_id":issue_ids[issue_ind],
+                    "cluster_id":current_cluster_id})

@@ -10,10 +10,10 @@ import json
 from shapely.geometry import Polygon as pg
 from shapely.geometry import Point
 
-def download_city_bounds(city):
-    request_url="https://seeclickfix.com/api/v2/places/"+str(city["id"])
-    response=urllib2.urlopen(request_url)
-    return json.loads(response.read())["poly"]["coordinates"][0][0]
+# def download_city_bounds(city):
+#     request_url="https://seeclickfix.com/api/v2/places/"+str(city["id"])
+#     response=urllib2.urlopen(request_url)
+#     return json.loads(response.read())["poly"]["coordinates"][0][0]
 
 
 def download_request_types(city):
@@ -47,7 +47,7 @@ def download_issues(request_type_ids,city):
     ## create polygon object in order to
     ## check to see that issues are within city
     ## boundaries before adding them.
-    bounds_polygon = pg(*[city["bounds"]])
+    bounds_polygons=[pg(*[bounds]) for bounds in city['bounds']]
 
     ## iteratively get the data by request type
     ## and then by page number
@@ -62,16 +62,18 @@ def download_issues(request_type_ids,city):
             data = json.loads(response.read())["issues"]
             for document in data:
                 ## here we check if issue coords are within city bounds
-                if bounds_polygon.contains(Point(document["lng"],document["lat"])):
-                    issues.append({
-                        "id":document["id"],
-                        "city_id":city["id"],
-        		        "request_type_id":request_type_id,
-                        "created_at":document["created_at"],
-                        "status":document["status"],
-                        "address":document["address"],
-                        "lng":document["lng"],
-                        "lat":document["lat"]})
+                for bounds_polygon in bounds_polygons:
+                    if bounds_polygon.contains(Point(document["lng"],document["lat"])):
+                        issues.append({
+                            "id":document["id"],
+                            "city_id":city["id"],
+            		        "request_type_id":request_type_id,
+                            "created_at":document["created_at"],
+                            "status":document["status"],
+                            "address":document["address"],
+                            "lng":document["lng"],
+                            "lat":document["lat"]})
+                        break
             page+=1
 
     return issues

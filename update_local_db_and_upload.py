@@ -24,11 +24,12 @@ new_batch()
 ## 2. iterate through cities in list
 ## updating local db in the process...
 for city in cities_list:
-    get_city(city)
-    get_request_types(city)
-    get_issues(city)
+    if not city["id"]==3039:
+        get_city(city)
+        get_request_types(city)
+        get_issues(city)
     get_streets(city)
     get_clusters(city)
 
-## 3. upload data to app database
-upload_data()
+    ## 3. upload data to app database
+    upload_data(city)

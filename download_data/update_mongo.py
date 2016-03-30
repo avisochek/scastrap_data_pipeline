@@ -1,6 +1,6 @@
 import pymongo
 from pymongo import MongoClient
-from scf_data_download import download_issues,download_request_types,download_city_bounds
+from scf_data_download import download_issues,download_request_types
 import os
 import json
 
@@ -12,11 +12,10 @@ def get_city(city):
     ## update city if necessary, either way,
     ## and return city bounds
     if not db.cities.find_one({"id":city["id"]}):
-        #city_bounds=download_city_bounds(city)
         db.cities.insert_one({
             "id":city["id"],
             "name":city["name"],
-            "bounds":city_bounds,
+            "organizations":city["organizations"],
             "lat":city["lat"],
             "lng":city["lng"],
             "area":city["area"],
@@ -55,7 +54,7 @@ def get_issues(city):
         ## and update existing issues
         ## at the same time...
         if not db.issues.find_one({"id":issue["id"]}):
-            issue["street_id"]=-1
+            issue["street_id"]="A"
             db.issues.insert_one(issue)
         else:
             db.issues.update_one(

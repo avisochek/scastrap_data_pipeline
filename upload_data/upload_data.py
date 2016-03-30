@@ -3,7 +3,7 @@ from pymongo import MongoClient
 import requests
 import json
 #
-def upload_data():
+def upload_data(city):
     print "uploading data..."
     key="xxxx"
     base_url = "http://localhost:3000"
@@ -14,7 +14,7 @@ def upload_data():
 
     print "........uploading cities"
     ## upload cities
-    for city in db.cities.find():
+    for city in db.cities.find({"id":city["id"]}):
         city_exists_url = base_url+"/api/city_exists/"
         city_exists_url += str(city["id"]) + "?key=" + key
         response = requests.get(city_exists_url)
@@ -36,7 +36,7 @@ def upload_data():
 
     print "........uploading streets"
     ## upload streets
-    for street in db.streets.find():
+    for street in db.streets.find({"city_id":city["id"]}):
         street_exists_url = base_url+"/api/street_exists/"
         street_exists_url += str(street["id"]) + "?key=" + key
         response = requests.get(street_exists_url)
@@ -57,7 +57,7 @@ def upload_data():
 
     print "........uploading request types"
     ## upload request types
-    for request_type in db.request_types.find():
+    for request_type in db.request_types.find({"city_id":city["id"]}):
         request_type_exists_url = base_url+"/api/request_type_exists/"
         request_type_exists_url += str(request_type["id"]) + "?key=" + key
         response = requests.get(request_type_exists_url)
@@ -78,7 +78,7 @@ def upload_data():
 
     print "........uploading issues"
     ## upload issues
-    issues_cursor = db.issues.find(no_cursor_timeout=True)
+    issues_cursor = db.issues.find({"city_id":city["id"]},no_cursor_timeout=True)
     n_issues=issues_cursor.count()
     count=0
     for issue in issues_cursor:
@@ -118,7 +118,7 @@ def upload_data():
 
     print "........uploading batches"
     ## upload latest batch
-    for batch in db.batches.find():
+    for batch in db.batches.find({"city_id":city["id"]}):
         batch_exists_url = base_url+"/api/batch_exists/"
         batch_exists_url += str(batch["id"]) + "?key=" + key
         response = requests.get(batch_exists_url)

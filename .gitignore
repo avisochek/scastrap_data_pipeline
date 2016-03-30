@@ -6,3 +6,4 @@
 /clustering_sandbox/cluster_data/*
 /clustering_sandbox/mcl_data/*
 /Nominatim/*
+*.tsv
