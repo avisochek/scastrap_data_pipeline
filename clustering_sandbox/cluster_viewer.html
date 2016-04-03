@@ -18,14 +18,13 @@
 
     <input id="cluster_file" type='file'>
     <div class="container" style="display:flex;">
-    <div id="sidebar" style="background-color:grey;width:300px;height:100%;overflow-y:scroll"></div>
     <div id="map" style="height:100%;width:100%;">
     </div>
 <!--basic UI stuff-->
 <script>
-  $(document).ready(function(){
-    newMap();
-  });
+  // $(document).ready(function(){
+  //   newMap();
+  // });
   $("#cluster_file").change(function(evt){
     display_clusters(this.files[0]);
   });
@@ -43,112 +42,182 @@
     var all_issues=[];
     var ind=0;
     $("#sidebar").html("")
-    cluster_data.forEach(function(cluster){
-      cluster.forEach(function(issue) {
-        all_issues.push(issue);
-      });
-      addMenuItem(cluster,ind);
-      ind+=1
-    });
-    plotMap(all_issues);
+    // cluster_data.forEach(function(cluster){
+    //   cluster.forEach(function(issue) {
+    //     all_issues.push(issue);
+    //   });
+    //   addMenuItem(cluster,ind);
+    //   ind+=1
+    // });
+    plotMap(cluster_data);
+    console.log(cluster_data);
   }
 
-  function addMenuItem(cluster,ind){
-    var element = jQuery('<div/>',{'class':'option','click':function(e){console.log(jQuery.data(e,"issues"))}});
-    element.click(function(){
-      console.log(cluster.length)
-      updateMap(cluster);
-    });
-    element.html("<h1>"+ind+"</h1>")
-    $("#sidebar").append(element);
-  }
+  // function addMenuItem(cluster,ind){
+  //   var element = jQuery('<div/>',{'class':'option','click':function(e){console.log(jQuery.data(e,"issues"))}});
+  //   element.click(function(){
+  //     console.log(cluster.length)
+  //     updateMap(cluster);
+  //   });
+  //   element.html("<h1>"+ind+"</h1>")
+  //   $("#sidebar").append(element);
+  // }
 
 </script>
 
 
-<!--google maps api functionality-->
 <script>
-  var map;
-  var markers =[];
+var overlay;
+issuesOverlay.prototype = new google.maps.OverlayView();
 
-  function newMap(){
-    // Create a map object and specify the DOM element for display.
-    map = new google.maps.Map(document.getElementById('map'), {
-      scrollwheel: false,
-      zoom:8,
-      center:{"lng":-72,"lat":42}
+function issuesOverlay(map) {
+    this._map = map;
+    this._issues = [];
+    this._radius = 6;
+    this._container = document.createElement("div");
+    this._container.id = "issueslayer";
+    this.addIssue = function (issue,clusterColor) {
+        this._issues.push({
+          position: new google.maps.LatLng(issue["lat"],issue["lng"]),
+          fillColor:clusterColor
+        });
+    };
+}
+
+
+issuesOverlay.prototype.createIssueIcon = function (color,id,pos) {
+
+    var issueIcon = document.createElement('canvas');
+    issueIcon.id = 'issueicon_' + id;
+    //calculate radius based on poulation
+    this._radius = 10;
+    issueIcon.width = issueIcon.height =  this._radius * 2;
+    issueIcon.style.width = issueIcon.width + 'px';
+    issueIcon.style.height = issueIcon.height + 'px';
+    issueIcon.style.left = (pos.x - this._radius) + 'px';
+    issueIcon.style.top = (pos.y - this._radius) + 'px';
+    issueIcon.style.position = "absolute";
+    issueIcon.style.borderRadius = 5;
+    //issueIcon.style.opacity=0;
+    //issueIcon.fillStyle = color;
+
+    var centerX = issueIcon.width / 2;
+    var centerY = issueIcon.height / 2;
+    var ctx = issueIcon.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, this._radius, 0, Math.PI * 2, true);
+    ctx.fill();
+
+    return issueIcon;
+};
+
+
+issuesOverlay.prototype.ensureIssueIcon = function (color,id,pos) {
+    var issueIcon = document.getElementById("issueicon_" + id);
+    if(issueIcon){
+        issueIcon.style.left = (pos.x - this._radius) + 'px';
+        issueIcon.style.top = (pos.y - this._radius) + 'px';
+        console.log("color");
+        return issueIcon;
+    }
+    return this.createIssueIcon(color,id,pos);
+};
+
+
+
+issuesOverlay.prototype.onAdd = function () {
+    var panes = this.getPanes();
+    console.log(this._container);
+    panes.overlayLayer.appendChild(this._container);
+};
+
+
+
+issuesOverlay.prototype.draw = function () {
+    var zoom = this._map.getZoom();
+    var overlayProjection = this.getProjection();
+
+    var container = this._container;
+
+    this._issues.forEach(function(issue,idx){
+        var xy = overlayProjection.fromLatLngToDivPixel(issue.position);
+        var issueIcon = overlay.ensureIssueIcon(issue.fillColor,idx,xy);
+        container.appendChild(issueIcon);
     });
-  };
 
-  function plotMap(issues){
-    // create new latlngbounds object
-    // which we will use to center and focus the map
+};
+
+issuesOverlay.prototype.onRemove = function () {
+    this._container.parentNode.removeChild(this._container);
+    //this._container = null;
+};
+
+
+
+
+
+
+
+
+
+
+
+function getRandomInterval(min, max) {
+    return Math.random() * (max - min) + min;
+}
+</script>
+
+
+<!-- function for manipulating map -->
+<script>
+var overlay;
+var heatmap;
+var map;
+
+function plotMap(clusters) {
+    var mapOptions = {};
+    map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+    overlay = new issuesOverlay(map);
+
     var latlngbounds = new google.maps.LatLngBounds();
-    markers.forEach(function(marker){marker.setMap(null)});
-    markers=[];
-    //iterate over issues populating the map and the bounds
-    issues.forEach(function(issue){
-      var loc = new google.maps.LatLng(issue.lat,issue.lng);
-      latlngbounds.extend(loc);
-      markers.push(
-        new google.maps.Marker({
-          sName:issue["issue_id"],
-          position: loc,
-          map: map,
-          icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            fillOpacity: 0.1,
-            fillColor: "blue",
-            strokeOpacity: 0.5,
-            strokeWeight: 1.0,
-            scale: 10 //pixels
-          }
-        })
-      );
-    });
-
-    //map.setCenter(latlngbounds.getCenter());
-    map.fitBounds(latlngbounds);
-  };
-
-  function updateMap(issues){
-    // create new latlngbounds object
-    // which we will use to center and focus the map
-    var latlngbounds = new google.maps.LatLngBounds();
-
-    issue_ids = issues.map(function(issue){
-      return issue.issue_id;
-    });
-    //console.log(issues.length);
-    //console.log(issue_ids.length);
-    var color;
-    markers.forEach(function(marker){
-      //console.log(issue_ids);
-      //console.log(marker.sName);
-      if (issue_ids.indexOf(marker.sName)>-1){
-        console.log("red");
-        color="red";
-      }else{
-        color="blue";
-      };
-      marker.setIcon({
-        path: google.maps.SymbolPath.CIRCLE,
-        fillOpacity: 0.5,
-        fillColor: color,
-        strokeOpacity: 0.5,
-        strokeWeight: 1.0,
-        scale: 10
+    var issue_coords=[];
+    var i = 0;
+    clusters.forEach(function(cluster){
+      clusterColor = "#" + Math.random().toString(16).slice(2, 8);
+      i+=1;
+      if (i == clusters.length){clusterColor="#000000"}
+      cluster.forEach(function(issue){
+        loc = new google.maps.LatLng(issue["lat"],issue["lng"])
+        latlngbounds.extend(loc);
+        overlay.addIssue(issue,clusterColor);
+        issue_coords.push(new google.maps.LatLng(issue["lat"],issue["lng"]));
       });
     });
-
-    issues.forEach(function(issue){
-      var loc = new google.maps.LatLng(issue.lat,issue.lng);
-      latlngbounds.extend(loc);
-    });
-
+    overlay.setMap(map);
+    //console.log(issue_coords)
     map.fitBounds(latlngbounds);
-  }
+    if (heatmap){
+      heatmap.setMap(null);
+    }
+    heatmap = new google.maps.visualization.HeatmapLayer({
+    data: issue_coords,
+    map: null
+  });
+};
+
+// document.getElementById("mapToggle").on("click",function(){
+//
+// });
+function toggleMap(){
+  heatmap.setMap(heatmap.getMap() ? null : map);
+  overlay.setMap(overlay.getMap() ? null : map);
+};
+//google.maps.event.addDomListener(window, 'load', initialize);
+
 </script>
+
 
 
 

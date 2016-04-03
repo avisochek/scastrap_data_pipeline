@@ -3,6 +3,16 @@ import numpy as np
 import os
 import csv
 
+
+def get_distance(coord1,coord2):
+    R=3961.*5280
+    dlon = (math.pi/180.)*(coord1[0]-coord2[0])
+    dlat = (math.pi/180.)*(coord1[1]-coord2[1])
+    a=dlat**2.+dlon**2.
+    c=math.sqrt(a)
+    d=R*c
+    return d
+
 def mcl(lngs,lats,city, cluster_diameter):
     lat_to_feet_multiplier=20900000*math.pi/180
     lng_multiplier=math.cos(city["lat"])
@@ -13,21 +23,21 @@ def mcl(lngs,lats,city, cluster_diameter):
     used_inds=[]
     for i in range(len(lngs)):
         for j in range(i+1,len(lngs)):
-            distance_y=np.abs(lats[i]-lats[j])*lat_to_feet_multiplier
-            distance_x=np.abs(lngs[i]-lngs[j])*lat_to_feet_multiplier*lng_multiplier
-            if distance_x<cluster_diameter and distance_y<cluster_diameter:
-                distance=math.sqrt(distance_x**2+distance_y**2)
-                # distance=geopy.distance.vincenty(
-    			# 	tuple([lngs[i],lats[i]]),
-    			# 	tuple([lngs[j],lats[j]])).feet
-                if distance<cluster_diameter:
-                    graph.append([i,j,1-distance/(1.5*(cluster_diameter))])
+            # distance_y=np.abs(lats[i]-lats[j])*lat_to_feet_multiplier
+            # distance_x=np.abs(lngs[i]-lngs[j])*lat_to_feet_multiplier*lng_multiplier
+            # if distance_x<cluster_diameter and distance_y<cluster_diameter:
+            distance=get_distance([lngs[i],lats[i]],[lngs[j],lats[j]])
+            # distance=geopy.distance.vincenty(
+			# 	tuple([lngs[i],lats[i]]),
+			# 	tuple([lngs[j],lats[j]])).feet
+            if distance<cluster_diameter:
+                graph.append([i,j,1-distance/((cluster_diameter))])
     ## write graph to mcl input file
     with open("mcl_input_data.tsv","w") as f:
 		for row in graph:
 			f.write(str(row[0])+"\t"+str(row[1])+"\t"+str(row[2])+"\n")
     ## run mcl using command line
-    os.system("mcl mcl_input_data.tsv -I 3 --abc -o mcl_output_data.tsv")
+    os.system("mcl mcl_input_data.tsv -I 2 --abc -o mcl_output_data.tsv -q x")
     output_data=[]
     ## read in output file from previous step
     with open("mcl_output_data.tsv","r") as f:

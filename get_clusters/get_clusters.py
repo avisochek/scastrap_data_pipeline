@@ -10,23 +10,34 @@ import numpy as np
 import datetime
 from qwer import mcl
 
-def new_batch():
+def new_batch(city):
     client = MongoClient()
     db=client.scf_data
     if db.batches.find().count()>0:
         last_batch_id=db.batches.find().sort("id", pymongo.DESCENDING)[0]["id"]
-        db.batches.insert_one({"id":last_batch_id+1,"created_at":datetime.datetime.now()})
+        db.batches.insert_one({
+            "id":last_batch_id+1,
+            "created_at":datetime.datetime.now(),
+            "city_id":city["id"]})
     else:
-        db.batches.insert_one({"id":1,"created_at":datetime.datetime.now()})
+        db.batches.insert_one({
+            "id":1,
+            "created_at":datetime.datetime.now(),
+            "city_id":city["id"]})
 
 
 def get_clusters(city):
-    cluster_diameter=1000
+    ## create a new batch for current city_id
+    new_batch(city)
+
+    cluster_diameter=2000
     ## connect to to the database and load issues
     client = MongoClient()
     db=client.scf_data
 
-    current_batch_id = db.batches.find().sort("id", pymongo.DESCENDING)[0]["id"]
+    ## get latest batch id for current city
+    current_batch_id = db.batches.find({"city_id":city["id"]}).sort("id", pymongo.DESCENDING)[0]["id"]
+    ## get latest cluster id
     if db.clusters.find().count()>0:
         current_cluster_id = db.clusters.find().sort("id", pymongo.DESCENDING)[0]["id"]
     else:
@@ -38,8 +49,7 @@ def get_clusters(city):
 
     ## iterate through request_types
     ## and create a set of clusters for each
-    ## use k_means, where k is the number of
-    ## issues divided by 5.
+    ## use markov cluster
     print "getting clusters"
     clusters = []
     clusters_issues=[]
@@ -49,7 +59,7 @@ def get_clusters(city):
         lngs,lats,issue_ids=[],[],[]
         for issue in db.issues.find({
             "city_id":city["id"],
-            "request_type_id":request_type["id"],
+            "request_type_id":request_type_id,
             "status":{"$in":["Open","Acknowledged"]}}):
             lngs.append(issue["lng"])
             lats.append(issue["lat"])
@@ -57,7 +67,6 @@ def get_clusters(city):
 
         ## actual clustering happens here using mcl
         clusters_ind=mcl(lngs,lats,city,cluster_diameter)
-
         for cluster_ind in clusters_ind:
             ## map the cluster labels to the index of the issue ids
             current_cluster_id+=1

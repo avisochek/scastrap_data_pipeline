@@ -54,21 +54,26 @@ def k_means_clustering(lngs,lats,city, cluster_diameter):
     ## output from cluster labels...
     return labels_to_index(cluster_labels)
 
-
+def get_distance(coord1,coord2):
+    R=3961.*5280
+    dlon = (math.pi/180.)*(coord1[0]-coord2[0])
+    dlat = (math.pi/180.)*(coord1[1]-coord2[1])
+    a=dlat**2.+dlon**2.
+    c=math.sqrt(a)
+    d=R*c
+    return d
 
 def mcl(lngs,lats,city, cluster_diameter):
     lat_to_feet_multiplier=288200.
-    lng_multiplier=math.cos(city["lat"])
-    city_lng=city["lng"]
-    city_lat=city["lat"]
+    # lng_multiplier=math.cos(city["lat"])
+    # city_lng=city["lng"]
+    # city_lat=city["lat"]
     ## generate graph
     graph=[]
     used_inds=[]
     for i in range(len(lngs)):
         for j in range(i+1,len(lngs)):
-            distance_y=np.abs(lats[i]-lats[j])*lat_to_feet_multiplier
-            distance_x=np.abs(lngs[i]-lngs[j])*lat_to_feet_multiplier*lng_multiplier
-            distance=math.sqrt(distance_x**2+distance_y**2)
+            distance=get_distance([lngs[i],lats[i]],[lngs[j],lats[j]])
             # distance=geopy.distance.vincenty(
 			# 	tuple([lngs[i],lats[i]]),
 			# 	tuple([lngs[j],lats[j]])).feet
@@ -79,7 +84,7 @@ def mcl(lngs,lats,city, cluster_diameter):
 		for row in graph:
 			f.write(str(row[0])+"\t"+str(row[1])+"\t"+str(row[2])+"\n")
     ## run mcl using command line
-    os.system("mcl mcl_data/mcl_input_data.tsv -I 3 --abc -o mcl_data/mcl_output_data.tsv")
+    os.system("mcl mcl_data/mcl_input_data.tsv -I 2 --abc -o mcl_data/mcl_output_data.tsv")
     output_data=[]
     ## read in output file from previous step
     with open("mcl_data/mcl_output_data.tsv","r") as f:
@@ -111,9 +116,9 @@ def affinityprop(lngs, lats, city, cluster_diameter):
 	city_area = city["area"]
 	city_lng = city["lng"]
 	city_lat = city["lat"]
-	lngs = np.array(lngs)*math.cos(city_lat)
+	lngs = np.array(lngs)#*(math.cos(city["lat"])**2)
 
-	affinity = AffinityPropagation(damping=0.5, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False)
+	affinity = AffinityPropagation(damping=0.75, max_iter=200, convergence_iter=15, copy=True, preference=None, affinity='euclidean', verbose=False)
 	affinity.fit(np.array([lngs, lats]).transpose())
 	cluster_labels = np.array(affinity.labels_)
 

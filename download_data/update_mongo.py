@@ -39,7 +39,7 @@ def get_issues(city):
     client = MongoClient()
     db= client.scf_data
 
-    request_type_ids = [rt["id"] for rt in db.request_types.find()]
+    request_type_ids = [rt["id"] for rt in db.request_types.find({"city_id":city["id"]})]
     ## 3. get issues
     print "getting issues..."
     issues = download_issues(request_type_ids,city)
@@ -49,14 +49,10 @@ def get_issues(city):
 
     ## 4. insert issues into database
     print "inserting issues into database..."
-    for issue in issues:
-        ## check for overlaps,
-        ## and update existing issues
-        ## at the same time...
-        if not db.issues.find_one({"id":issue["id"]}):
-            issue["street_id"]="A"
-            db.issues.insert_one(issue)
-        else:
-            db.issues.update_one(
-                {"id":issue["id"]},{"$set":
-                {"status":issue["status"]}})
+
+    if db.issues.find().count()==0:
+        db.issues.insert_one({"id":"asdf"})
+        db.issues.create_index( {"id":1,"unique":True})
+
+    db.issues.remove({"city_id":city["id"]})
+    db.issues.insert_many(issues)

@@ -52,7 +52,6 @@ def upload_data(city):
             }}
             response=requests.post(street_upload_url,json=street_upload_params)
         else:
-            print "fail"
             continue
 
     print "........uploading request types"
@@ -133,41 +132,42 @@ def upload_data(city):
             response=requests.post(
                 batch_upload_url,
                 json=batch_upload_params)
-        else:
-            continue
 
-    print "........uploading clusters"
-    ## upload clusters and clusters issues with latest batch id
-    for cluster in db.clusters.find():
-        cluster_exists_url = base_url+"/api/cluster_exists/"
-        cluster_exists_url += str(cluster["id"]) + "?key=" + key
-        response = requests.get(cluster_exists_url)
-        result = json.loads(response.text)
-        if result["message"] == "false":
-            cluster_upload_url = base_url+"/api/create_cluster"
-            cluster_upload_url += "?key="+key
-            cluster_upload_params = {"cluster":{
-                "id_":cluster["id"],
-                "batch_id":cluster["batch_id"],
-                "request_type_id":cluster["request_type_id"],
-                "city_id":cluster["city_id"],
-                "score":cluster["score"]
-            }}
-            response=requests.post(cluster_upload_url,json=cluster_upload_params)
-        else:
-            continue
-        ## upload clusters_issues for each cluster
-        for cluster_issue in db.clusters_issues.find(
-            {"cluster_id":cluster["id"]}):
+        print "........uploading clusters"
+        ## upload clusters and clusters issues with latest batch id
+        for cluster in db.clusters.find({"batch_id":batch["id"]}):
+            cluster_exists_url = base_url+"/api/cluster_exists/"
+            cluster_exists_url += str(cluster["id"]) + "?key=" + key
+            response = requests.get(cluster_exists_url)
+            result = json.loads(response.text)
+            if result["message"] == "false":
+                cluster_upload_url = base_url+"/api/create_cluster"
+                cluster_upload_url += "?key="+key
+                cluster_upload_params = {"cluster":{
+                    "id_":cluster["id"],
+                    "batch_id":cluster["batch_id"],
+                    "request_type_id":cluster["request_type_id"],
+                    "city_id":cluster["city_id"],
+                    "score":cluster["score"]
+                }}
+                response=requests.post(cluster_upload_url,json=cluster_upload_params)
+            else:
+                continue
+            ## upload clusters_issues for each cluster
+            for cluster_issue in db.clusters_issues.find(
+                {"cluster_id":cluster["id"]}):
 
-            cluster_issue_upload_url = base_url+"/api/create_cluster_issue"
-            cluster_issue_upload_url += "?key="+key
-            cluster_issue_upload_params = {"cluster_issue":{
-                "cluster_id":cluster_issue["cluster_id"],
-                "issue_id":cluster_issue["issue_id"]
-            }}
-            response=requests.post(
-                cluster_issue_upload_url,
-                json=cluster_issue_upload_params)
+                cluster_issue_upload_url = base_url+"/api/create_cluster_issue"
+                cluster_issue_upload_url += "?key="+key
+                cluster_issue_upload_params = {"cluster_issue":{
+                    "cluster_id":cluster_issue["cluster_id"],
+                    "issue_id":cluster_issue["issue_id"]
+                }}
+                response=requests.post(
+                    cluster_issue_upload_url,
+                    json=cluster_issue_upload_params)
+            else:
+                continue
+
         else:
             continue
