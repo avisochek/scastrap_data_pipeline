@@ -127,7 +127,8 @@ def upload_data(city):
             batch_upload_url += "?key="+key
             batch_upload_params = {"batch":{
                 "id_":batch["id"],
-                "created_at":str(batch["created_at"])
+                "created_at":str(batch["created_at"]),
+                "city_id":city["id"]
             }}
             response=requests.post(
                 batch_upload_url,
