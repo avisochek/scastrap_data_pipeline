@@ -7,3 +7,4 @@
 /clustering_sandbox/mcl_data/*
 /Nominatim/*
 *.tsv
+/upload_data/database.json

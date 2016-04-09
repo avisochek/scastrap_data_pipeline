@@ -52,7 +52,7 @@ def get_issues(city):
 
     if db.issues.find().count()==0:
         db.issues.insert_one({"id":"asdf"})
-        db.issues.create_index( {"id":1,"unique":True})
+        db.issues.create_index([ ("id",1),("unique",True)])
 
     db.issues.remove({"city_id":city["id"]})
     db.issues.insert_many(issues)

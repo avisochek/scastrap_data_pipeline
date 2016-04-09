@@ -68,12 +68,13 @@ def download_issues(request_type_ids,city):
                             "id":document["id"],
                             "city_id":city["id"],
             		        "request_type_id":request_type_id,
-                            "street_id":-1,
                             "created_at":document["created_at"],
                             "status":document["status"],
                             "address":document["address"],
                             "lng":document["lng"],
-                            "lat":document["lat"]})
+                            "lat":document["lat"],
+                            "summary":document["summary"],
+                            "description":document["description"]})
                         break
             page+=1
 

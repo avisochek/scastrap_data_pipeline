@@ -67,7 +67,15 @@ def get_clusters(city):
 
         ## actual clustering happens here using mcl
         clusters_ind=mcl(lngs,lats,city,cluster_diameter)
+
+        ## make a single cluster for each issue not covered...
+        used_ind=[]
         for cluster_ind in clusters_ind:
+            used_ind+=cluster_ind
+
+        ## insert clusters and cluster issue relations in database
+        for cluster_ind in clusters_ind:
+            used_ind+=cluster_ind
             ## map the cluster labels to the index of the issue ids
             current_cluster_id+=1
             db.clusters.insert_one({
