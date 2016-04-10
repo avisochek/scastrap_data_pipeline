@@ -94,8 +94,9 @@ def bulk_upload(city):
                         "batch_id":cluster["batch_id"],
                         "request_type_id":cluster["request_type_id"],
                         "city_id":cluster["city_id"],
-                        "score":cluster["score"]
-                    }}
+                        "score":cluster["score"],
+                        "lng":cluster["lng"],
+                        "lat":cluster["lat"]}}
                     response=requests.post(cluster_upload_url,json=cluster_upload_params)
                 else:
                     continue

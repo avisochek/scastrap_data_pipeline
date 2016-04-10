@@ -80,7 +80,7 @@ def get_clusters(city):
         ## insert clusters and cluster issue relations in database
         for cluster_ind in clusters_ind:
             cluster_lng = np.array(lngs)[cluster_ind]
-            cluster_lat = np.array(lngs)[cluster_ind]
+            cluster_lat = np.array(lats)[cluster_ind]
             used_ind+=cluster_ind
             ## map the cluster labels to the index of the issue ids
             current_cluster_id+=1
