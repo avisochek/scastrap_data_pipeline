@@ -39,17 +39,21 @@ def bulk_upload(city):
     count=0.
     issues=[]
     for issue in issues_cursor:
-        issues.append({
+        issue_to_append={
             "id_":issue["id"],
             "city_id":city["id"],
             "request_type_id":issue["request_type_id"],
             "created_at":issue["created_at"],
             "status":issue["status"],
             "address":issue["address"],
+            "street_id":0,
             "lng":issue["lng"],
             "lat":issue["lat"],
             "summary":issue["summary"],
-            "description":issue["description"]})
+            "description":issue["description"]}
+        if "street_id" in issue.keys():
+            issue_to_append["street_id"]=issue["street_id"]
+        issues.append(issue_to_append)
     issues_cursor.close()
     ## upload in batches of 1000
     for ind in range((len(issues)/1000)+1):

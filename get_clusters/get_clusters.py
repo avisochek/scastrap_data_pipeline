@@ -75,6 +75,8 @@ def get_clusters(city):
 
         ## insert clusters and cluster issue relations in database
         for cluster_ind in clusters_ind:
+            cluster_lng = np.array(lngs)[cluster_ind]
+            cluster_lat = np.array(lngs)[cluster_ind]
             used_ind+=cluster_ind
             ## map the cluster labels to the index of the issue ids
             current_cluster_id+=1
@@ -83,7 +85,9 @@ def get_clusters(city):
                 "batch_id":current_batch_id,
                 "request_type_id":request_type_id,
                 "city_id":city["id"],
-                "score":len(cluster_ind)})
+                "score":len(cluster_ind),
+                "lng":(min(cluster_lng)+max(cluster_lng))/2,
+                "lat":(min(cluster_lat)+max(cluster_lat))/2})
 
             ## cluster issue relationships are stored separately
             ## to allow for multiple batches

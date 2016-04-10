@@ -16,8 +16,8 @@ def get_streets(city):
     i=0
     issues_cursor = db.issues.find(
         {"city_id":city["id"],
-        "street_id":{"$exists":True},
-        "status":{"$in":["Open","Acknowledged"]}})
+        "street_id":{"$exists":False},
+        "status":{"$in":["Open","Acknowledged"]}},timeout=False)
     count=issues_cursor.count()
     print issues_cursor.count()
     for issue in issues_cursor:
