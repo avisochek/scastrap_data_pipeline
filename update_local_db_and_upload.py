@@ -22,12 +22,11 @@ with open("city_data/cities.json","r") as f:
 ## 2. iterate through cities in list
 ## updating local db in the process...
 for city in cities_list:
-    get_city(city)
-    get_request_types(city)
-    if not city["id"] == 3039:
-        get_issues(city)
-    get_streets(city)
+    #get_city(city)
+    #get_request_types(city)
+    #get_issues(city)
+    #get_streets(city)
     get_clusters(city)
-
+    
     ## 3. upload data to app database
     bulk_upload(city)

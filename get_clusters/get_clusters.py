@@ -20,8 +20,12 @@ def new_batch(city):
             "created_at":datetime.datetime.now(),
             "city_id":city["id"]})
     else:
+        if db.batches.find().count()>0:
+            latest_batch_id = db.batches.find().sort("id", pymongo.DESCENDING)[0]["id"]
+        else:
+            latest_batch_id = 0
         db.batches.insert_one({
-            "id":1,
+            "id":latest_batch_id+1,
             "created_at":datetime.datetime.now(),
             "city_id":city["id"]})
 
