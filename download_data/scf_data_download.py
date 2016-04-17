@@ -28,9 +28,9 @@ def download_request_types(city):
             request_type_id = request_type["url"].split("/request_types/")[1]
             request_type_name=request_type["title"]
             request_types.append({
-                "id":request_type_id,
+                "id_":request_type_id,
                 "name":request_type_name,
-                "city_id":city["id"]})
+                "city_id":city["id_"]})
     return request_types
 
 
@@ -65,8 +65,8 @@ def download_issues(request_type_ids,city):
                 for bounds_polygon in bounds_polygons:
                     if bounds_polygon.contains(Point(document["lng"],document["lat"])):
                         issues.append({
-                            "id":document["id"],
-                            "city_id":city["id"],
+                            "id_":document["id"],
+                            "city_id":city["id_"],
             		        "request_type_id":request_type_id,
                             "created_at":document["created_at"],
                             "status":document["status"],

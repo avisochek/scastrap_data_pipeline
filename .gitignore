@@ -8,3 +8,4 @@
 /Nominatim/*
 *.tsv
 /upload_data/database.json
+key_file.json

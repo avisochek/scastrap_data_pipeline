@@ -2,7 +2,7 @@
   {
     "name":"New Haven, CT",
     "organizations":["New Haven","CT Transit"],
-    "id":3039,
+    "id_":3039,
     "lat":41.3100,
     "lng":-72.9236,
     "osm":"new_haven.osm",
@@ -12,7 +12,7 @@
   {
     "name":"Detroit, MI",
     "organizations":["Detroit Water & Sewerage Dept.","City of Detroit"],
-    "id":73249,
+    "id_":73249,
     "lng":-83.0442361839428,
     "lat":42.3578559608962,
     "osm":"detroit.osm",
@@ -22,7 +22,7 @@
   {
     "name":"Houston, TX",
     "organizations":["City of Houston"],
-    "id":21781,
+    "id_":21781,
     "lng":-95.3847175740806,
     "lat":29.7785817031942,
     "osm":"houston.osm",
@@ -32,7 +32,7 @@
   {
     "name":"Richmond, VA",
     "organizations":["City of Richmond "],
-    "id":72860,
+    "id_":72860,
     "lng":-77.4212277505627,
     "lat":37.5270633945081,
     "osm":"richmond.osm",
@@ -42,7 +42,7 @@
   {
     "name":"Oakland, CA",
     "organizations":["City of Oakland"],
-    "id":999999,
+    "id_":999999,
     "lng":-122.2713562,
     "lat":37.8044557,
     "osm":"oakland.osm",

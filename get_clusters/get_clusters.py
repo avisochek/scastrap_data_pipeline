@@ -14,20 +14,20 @@ def new_batch(city):
     client = MongoClient()
     db=client.scf_data
     if db.batches.find().count()>0:
-        last_batch_id=db.batches.find().sort("id", pymongo.DESCENDING)[0]["id"]
+        last_batch_id=db.batches.find().sort("id_", pymongo.DESCENDING)[0]["id_"]
         db.batches.insert_one({
-            "id":last_batch_id+1,
+            "id_":last_batch_id+1,
             "created_at":datetime.datetime.now(),
-            "city_id":city["id"]})
+            "city_id":city["id_"]})
     else:
         if db.batches.find().count()>0:
-            latest_batch_id = db.batches.find().sort("id", pymongo.DESCENDING)[0]["id"]
+            latest_batch_id = db.batches.find().sort("id_", pymongo.DESCENDING)[0]["id_"]
         else:
             latest_batch_id = 0
         db.batches.insert_one({
-            "id":latest_batch_id+1,
+            "id_":latest_batch_id+1,
             "created_at":datetime.datetime.now(),
-            "city_id":city["id"]})
+            "city_id":city["id_"]})
 
 
 def get_clusters(city):
@@ -40,15 +40,15 @@ def get_clusters(city):
     db=client.scf_data
 
     ## get latest batch id for current city
-    current_batch_id = db.batches.find({"city_id":city["id"]}).sort("id", pymongo.DESCENDING)[0]["id"]
+    current_batch_id = db.batches.find({"city_id":city["id_"]}).sort("id_", pymongo.DESCENDING)[0]["id_"]
     ## get latest cluster id
     if db.clusters.find().count()>0:
-        current_cluster_id = db.clusters.find().sort("id", pymongo.DESCENDING)[0]["id"]
+        current_cluster_id = db.clusters.find().sort("id_", pymongo.DESCENDING)[0]["id_"]
     else:
         current_cluster_id = 0
 
     ## get request_type_ids
-    request_type_ids=[request_type["id"] for request_type in db.request_types.find({"city_id":city["id"]})]
+    request_type_ids=[request_type["id_"] for request_type in db.request_types.find({"city_id":city["id_"]})]
 
 
     ## iterate through request_types
@@ -62,12 +62,12 @@ def get_clusters(city):
         print "....clustering "+ str(request_type_id)
         lngs,lats,issue_ids=[],[],[]
         for issue in db.issues.find({
-            "city_id":city["id"],
+            "city_id":city["id_"],
             "request_type_id":request_type_id,
             "status":{"$in":["Open","Acknowledged"]}}):
             lngs.append(issue["lng"])
             lats.append(issue["lat"])
-            issue_ids.append(issue["id"])
+            issue_ids.append(issue["id_"])
 
         ## actual clustering happens here using mcl
         clusters_ind=mcl(lngs,lats,city,cluster_diameter)
@@ -85,10 +85,10 @@ def get_clusters(city):
             ## map the cluster labels to the index of the issue ids
             current_cluster_id+=1
             db.clusters.insert_one({
-                "id":current_cluster_id,
+                "id_":current_cluster_id,
                 "batch_id":current_batch_id,
                 "request_type_id":request_type_id,
-                "city_id":city["id"],
+                "city_id":city["id_"],
                 "score":len(cluster_ind),
                 "lng":(min(cluster_lng)+max(cluster_lng))/2,
                 "lat":(min(cluster_lat)+max(cluster_lat))/2})

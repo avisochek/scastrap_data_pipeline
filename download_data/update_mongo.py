@@ -11,9 +11,9 @@ def get_city(city):
 
     ## update city if necessary, either way,
     ## and return city bounds
-    if not db.cities.find_one({"id":city["id"]}):
+    if not db.cities.find_one({"id_":city["id_"]}):
         db.cities.insert_one({
-            "id":city["id"],
+            "id_":city["id_"],
             "name":city["name"],
             "organizations":city["organizations"],
             "lat":city["lat"],
@@ -31,7 +31,7 @@ def get_request_types(city):
     ## at the same time, extract request_type_ids
     request_types = download_request_types(city)
     for request_type in request_types:
-        if db.request_types.find({"id":request_type["id"]}).count()==0:
+        if db.request_types.find({"id_":request_type["id_"]}).count()==0:
             db.request_types.insert_one(request_type)
 
 def get_issues(city):
@@ -39,7 +39,7 @@ def get_issues(city):
     client = MongoClient()
     db= client.scf_data
 
-    request_type_ids = [rt["id"] for rt in db.request_types.find({"city_id":city["id"]})]
+    request_type_ids = [rt["id_"] for rt in db.request_types.find({"city_id":city["id_"]})]
     ## 3. get issues
     print "getting issues..."
     issues = download_issues(request_type_ids,city)
@@ -51,8 +51,8 @@ def get_issues(city):
     print "inserting issues into database..."
 
     if db.issues.find().count()==0:
-        db.issues.insert_one({"id":"asdf"})
-        db.issues.create_index([ ("id",1),("unique",True)])
+        db.issues.insert_one({"id_":"asdf"})
+        db.issues.create_index([ ("id_",1),("unique",True)])
 
-    db.issues.remove({"city_id":city["id"]})
+    db.issues.remove({"city_id":city["id_"]})
     db.issues.insert_many(issues)
