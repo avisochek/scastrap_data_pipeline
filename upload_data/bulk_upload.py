@@ -66,7 +66,6 @@ def bulk_upload(city):
 
         cluster_upload_url = base_url+"/api/bulk_upsert_cluster"
         cluster_upload_url += "?key="+key
-        print clusters_to_upload
         cluster_upload_params = {"clusters":clusters_to_upload}
         response=requests.post(
             cluster_upload_url,
