@@ -12,41 +12,41 @@ def bulk_upload(city):
     client = MongoClient()
     db= client.scf_data
 
-    # print "........uploading streets"
-    # ## upload streets, first get all issues into array
-    # streets_cursor = db.streets.find({"city_id":city["id_"]},{"_id":False},no_cursor_timeout=True)
-    # streets = [street for street in streets_cursor]
-    # streets_cursor.close()
-    # ## upload in batches of 1000
-    # for ind in range((len(streets)/1000)+1):
-    #     startind=(1000*ind)
-    #     stopind=min((1000*(ind+1)),len(streets))
-    #     streets_to_upload=streets[startind:stopind]
-    #
-    #     street_upload_url = base_url+"/api/bulk_upsert_street"
-    #     street_upload_url += "?key="+key
-    #     street_upload_params = {"streets":streets_to_upload}
-    #     response=requests.post(
-    #         street_upload_url,
-    #         json=street_upload_params)
-    #
-    # print "........uploading issues"
-    # ## upload streets, first get all issues into array
-    # issues_cursor = db.issues.find({"city_id":city["id_"]},{"_id":False},no_cursor_timeout=True)
-    # issues = [issue for issue in issues_cursor]
-    # issues_cursor.close()
-    # ## upload in batches of 1000
-    # for ind in range((len(issues)/1000)+1):
-    #     startind=(1000*ind)
-    #     stopind=min((1000*(ind+1)),len(issues))
-    #     issues_to_upload=issues[startind:stopind]
-    #
-    #     issue_upload_url = base_url+"/api/bulk_upsert_issue"
-    #     issue_upload_url += "?key="+key
-    #     issue_upload_params = {"issues":issues_to_upload}
-    #     response=requests.post(
-    #         issue_upload_url,
-    #         json=issue_upload_params)
+    print "........uploading streets"
+    ## upload streets, first get all issues into array
+    streets_cursor = db.streets.find({"city_id":city["id_"]},{"_id":False},no_cursor_timeout=True)
+    streets = [street for street in streets_cursor]
+    streets_cursor.close()
+    ## upload in batches of 1000
+    for ind in range((len(streets)/1000)+1):
+        startind=(1000*ind)
+        stopind=min((1000*(ind+1)),len(streets))
+        streets_to_upload=streets[startind:stopind]
+
+        street_upload_url = base_url+"/api/bulk_upsert_street"
+        street_upload_url += "?key="+key
+        street_upload_params = {"streets":streets_to_upload}
+        response=requests.post(
+            street_upload_url,
+            json=street_upload_params)
+
+    print "........uploading issues"
+    ## upload streets, first get all issues into array
+    issues_cursor = db.issues.find({"city_id":city["id_"]},{"_id":False},no_cursor_timeout=True)
+    issues = [issue for issue in issues_cursor]
+    issues_cursor.close()
+    ## upload in batches of 1000
+    for ind in range((len(issues)/1000)+1):
+        startind=(1000*ind)
+        stopind=min((1000*(ind+1)),len(issues))
+        issues_to_upload=issues[startind:stopind]
+
+        issue_upload_url = base_url+"/api/bulk_upsert_issue"
+        issue_upload_url += "?key="+key
+        issue_upload_params = {"issues":issues_to_upload}
+        response=requests.post(
+            issue_upload_url,
+            json=issue_upload_params)
 
     print "........uploading batch"
     ## upload latest batch
@@ -59,37 +59,37 @@ def bulk_upload(city):
     cluster_ids = [cluster["id_"] for cluster in clusters]
     clusters_cursor.close()
     ## upload in batches of 1000
-    # for ind in range((len(clusters)/1000)+1):
-    #     startind=(1000*ind)
-    #     stopind=min((1000*(ind+1)),len(clusters))
-    #     clusters_to_upload=clusters[startind:stopind]
-    #
-    #     cluster_upload_url = base_url+"/api/bulk_upsert_cluster"
-    #     cluster_upload_url += "?key="+key
-    #     print clusters_to_upload
-    #     cluster_upload_params = {"clusters":clusters_to_upload}
-    #     response=requests.post(
-    #         cluster_upload_url,
-    #         json=cluster_upload_params)
+    for ind in range((len(clusters)/1000)+1):
+        startind=(1000*ind)
+        stopind=min((1000*(ind+1)),len(clusters))
+        clusters_to_upload=clusters[startind:stopind]
 
-    # print "........uploading clusters issues"
-    # ## upload clusters and clusters issues with latest batch id
-    # clusters_issues_cursor = db.clusters_issues.find({"cluster_id":{"$in":cluster_ids}},{"_id":False})
-    # clusters_issues = [cluster_issue for cluster_issue in clusters_issues_cursor]
-    # clusters_issues_cursor.close()
-    # ## upload in batches of 1000
-    # for ind in range((len(clusters_issues)/1000)+1):
-    #     startind=(1000*ind)
-    #     stopind=min((1000*(ind+1)),len(clusters_issues))
-    #     clusters_issues_to_upload=clusters_issues[startind:stopind]
-    #
-    #     cluster_issue_upload_url = base_url+"/api/bulk_upsert_cluster_issue"
-    #     cluster_issue_upload_url += "?key="+key
-    #     cluster_issue_upload_params = {"clusters_issues":clusters_issues_to_upload}
-    #     response=requests.post(
-    #         cluster_issue_upload_url,
-    #         json=cluster_issue_upload_params)
-    #
+        cluster_upload_url = base_url+"/api/bulk_upsert_cluster"
+        cluster_upload_url += "?key="+key
+        print clusters_to_upload
+        cluster_upload_params = {"clusters":clusters_to_upload}
+        response=requests.post(
+            cluster_upload_url,
+            json=cluster_upload_params)
+
+    print "........uploading clusters issues"
+    ## upload clusters and clusters issues with latest batch id
+    clusters_issues_cursor = db.clusters_issues.find({"cluster_id":{"$in":cluster_ids}},{"_id":False})
+    clusters_issues = [cluster_issue for cluster_issue in clusters_issues_cursor]
+    clusters_issues_cursor.close()
+    ## upload in batches of 1000
+    for ind in range((len(clusters_issues)/1000)+1):
+        startind=(1000*ind)
+        stopind=min((1000*(ind+1)),len(clusters_issues))
+        clusters_issues_to_upload=clusters_issues[startind:stopind]
+
+        cluster_issue_upload_url = base_url+"/api/bulk_upsert_cluster_issue"
+        cluster_issue_upload_url += "?key="+key
+        cluster_issue_upload_params = {"clusters_issues":clusters_issues_to_upload}
+        response=requests.post(
+            cluster_issue_upload_url,
+            json=cluster_issue_upload_params)
+
     ## upload batch once clusters are loaded
     batch_upload_url = base_url+"/api/create_batch"
     batch_upload_url += "?key="+key
