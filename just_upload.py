@@ -11,7 +11,7 @@ sys.path.append("upload_data/")
 from update_mongo import get_city,get_request_types,get_issues
 from get_clusters import get_clusters, new_batch
 from get_streets import get_streets
-from bulk_upload import bulk_upload
+from direct_upload import direct_upload
 
 print "updating local db..."
 ## 1. read in city names
@@ -29,4 +29,4 @@ for city in cities_list:
     # get_clusters(city)
 
     ## 3. upload data to app database
-    bulk_upload(city)
+    direct_upload(city)

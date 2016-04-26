@@ -10,37 +10,49 @@ import numpy as np
 import datetime
 from qwer import mcl
 
+def delete_old_clusters(batch):
+    client = MongoClient()
+    db=client.scf_data
+    ## get rid of old clusters_issues
+    for cluster in db.clusters.find({
+        "city_id":batch["city_id"],
+        "batch_id":{"$ne":batch["id_"]}}):
+        db.clusters_issues.remove({
+            "cluster_id":cluster["id_"]})
+    ## get rid of old clusters
+    db.clusters.remove({
+        "city_id":batch["city_id"],
+        "batch_id":{"$ne":batch["id_"]}})
+    ## get rid of old batches
+    db.batches.remove({
+        "city_id":batch["city_id"],
+        "id_":{"$ne":batch["id_"]}})
+
 def new_batch(city):
     client = MongoClient()
     db=client.scf_data
     if db.batches.find().count()>0:
         last_batch_id=db.batches.find().sort("id_", pymongo.DESCENDING)[0]["id_"]
-        db.batches.insert_one({
-            "id_":last_batch_id+1,
-            "created_at":datetime.datetime.now(),
-            "city_id":city["id_"]})
     else:
-        if db.batches.find().count()>0:
-            latest_batch_id = db.batches.find().sort("id_", pymongo.DESCENDING)[0]["id_"]
-        else:
-            latest_batch_id = 0
-        db.batches.insert_one({
-            "id_":latest_batch_id+1,
-            "created_at":datetime.datetime.now(),
-            "city_id":city["id_"]})
-
+        last_batch_id=0
+    batch={
+        "id_":last_batch_id+1,
+        "created_at":datetime.datetime.now(),
+        "city_id":city["id_"]}
+    db.batches.insert_one(batch)
+    delete_old_clusters(batch)
+    return batch
 
 def get_clusters(city):
     ## create a new batch for current city_id
-    new_batch(city)
+    current_batch=new_batch(city)
+    current_batch_id = current_batch["id_"]
 
     cluster_diameter=2000
     ## connect to to the database and load issues
     client = MongoClient()
     db=client.scf_data
 
-    ## get latest batch id for current city
-    current_batch_id = db.batches.find({"city_id":city["id_"]}).sort("id_", pymongo.DESCENDING)[0]["id_"]
     ## get latest cluster id
     if db.clusters.find().count()>0:
         current_cluster_id = db.clusters.find().sort("id_", pymongo.DESCENDING)[0]["id_"]
@@ -76,6 +88,9 @@ def get_clusters(city):
         used_ind=[]
         for cluster_ind in clusters_ind:
             used_ind+=cluster_ind
+        unused_ind = [ind for ind in range(len(issue_ids)) if ind not in used_ind]
+        for ind in unused_ind:
+            clusters_ind.append([ind])
 
         ## insert clusters and cluster issue relations in database
         for cluster_ind in clusters_ind:

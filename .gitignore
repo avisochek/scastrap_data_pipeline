@@ -9,3 +9,4 @@
 *.tsv
 /upload_data/database.json
 key_file.json
+database_info.json

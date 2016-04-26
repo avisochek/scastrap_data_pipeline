@@ -6,7 +6,7 @@ import json
 def bulk_upload(city):
     print "uploading data..."
     key=json.load(open('key_file.json','r'))["key"]
-    base_url = "http://localhost:3000"
+    base_url = "http://floating-forest-13652.herokuapp.com/"
 
     #connect to mongodb server and create database...
     client = MongoClient()
@@ -40,7 +40,6 @@ def bulk_upload(city):
         startind=(1000*ind)
         stopind=min((1000*(ind+1)),len(issues))
         issues_to_upload=issues[startind:stopind]
-
         issue_upload_url = base_url+"/api/bulk_upsert_issue"
         issue_upload_url += "?key="+key
         issue_upload_params = {"issues":issues_to_upload}
