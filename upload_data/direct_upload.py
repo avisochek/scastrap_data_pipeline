@@ -135,25 +135,24 @@ def direct_upload(city):
                 summary = issue["summary"],
                 description = issue["description"]))
         else:
-            issues_to_update.append(Issue(
-                id_=issue["id_"],
-                city_id=issue["city_id"],
-                request_type_id = issue["request_type_id"],
-                street_id = issue["street_id"],
-                created_at = issue["created_at"],
-                status = issue["status"],
-                address = issue["address"],
-                lng = issue["lng"],
-                lat = issue["lat"],
-                summary = issue["summary"],
-                description = issue["description"]))
+            issues_to_update.append({
+                "city_id":issue["city_id"],
+                "request_type_id" : issue["request_type_id"],
+                "street_id" : street_id,
+                "created_at" : issue["created_at"],
+                "status" : issue["status"],
+                "address" : issue["address"],
+                "lng" : issue["lng"],
+                "lat" : issue["lat"],
+                "summary" : issue["summary"],
+                "description" : issue["description"]})
 
     print ".........................updating old issues..."
     progress = 0.
     for issue_to_update in issues_to_update:
         # print existing_ids
         # print issue
-        session.query(Issue).filter_by(id_=issue["id_"]).update(issue)
+        session.query(Issue).filter_by(id_=issue["id_"]).update(issue_to_update)
         progress+=1
         print "progress: "+str(progress/len(issues_to_update)),"\r",
     print ".........................updating new issues..."
@@ -169,6 +168,7 @@ def direct_upload(city):
     clusters = [cluster for cluster in clusters_cursor]
     cluster_ids = [cluster["id_"] for cluster in clusters]
     clusters_cursor.close()
+    existing_ids = [id[0] for id in session.query(Cluster.id_)]
 
     clusters_to_upload = [Cluster(
         id_=cluster["id_"],
@@ -178,7 +178,8 @@ def direct_upload(city):
         score=cluster["score"],
         lat=cluster["lat"],
         lng=cluster["lng"])
-        for cluster in clusters]
+        for cluster in clusters
+            if not cluster["id_"] in existing_ids]
 
     session.add_all(clusters_to_upload)
     session.commit()
@@ -188,24 +189,33 @@ def direct_upload(city):
     clusters_issues_cursor = db.clusters_issues.find({"cluster_id":{"$in":cluster_ids}})
     clusters_issues = [cluster_issue for cluster_issue in clusters_issues_cursor]
     clusters_issues_cursor.close()
+    existing_relations = [(cluster_issue)
+        for cluster_issue in session.query(
+            ClusterIssue.issue_id,
+            ClusterIssue.cluster_id)]
 
     clusters_issues_to_upload = [ClusterIssue(
         cluster_id=cluster_issue["cluster_id"],
         issue_id=cluster_issue["issue_id"],
         batch_id=latest_batch["id_"],
         city_id=city["id_"])
-        for cluster_issue in clusters_issues]
+        for cluster_issue in clusters_issues
+            if not (cluster_issue["issue_id"],cluster_issue["cluster_id"])
+                in existing_relations]
 
     session.add_all(clusters_issues_to_upload)
     session.commit()
 
     print "........uploading batch and deleting old clusters"
+
+    existing_ids = [id[0] for id in session.query(Batch.id_)]
     batch_to_upload = Batch(
         id_=latest_batch["id_"],
         city_id=latest_batch["city_id"],
         created_at=latest_batch["created_at"])
-    session.add(batch_to_upload)
-    session.commit()
+    if not batch_to_upload in existing_ids:
+        session.add(batch_to_upload)
+        session.commit()
 
     ## delete old batches of clusters
     session.query(Batch).filter(
@@ -220,22 +230,27 @@ def direct_upload(city):
 
     print "........uploading request types"
     ## upload request types
+    existing_ids = [id[0] for id in session.query(RequestType.id_)]
+
     request_types_to_upload = [RequestType(
         id_=request_type["id_"],
         city_id=request_type["city_id"],
         name=request_type["name"])
         for request_type in db.request_types.find({
-            "city_id":city["id_"]})]
+            "city_id":city["id_"]})
+            if not request_type["id_"] in existing_ids]
     session.add_all(request_types_to_upload)
     session.commit()
 
     print "........uploading city"
     ## upload cities
+    existing_ids = [id[0] for id in session.query(City.id_)]
     city = db.cities.find_one({"id_":city["id_"]})
     city_to_upload = City(
         name=city["name"],
         id_=city["id_"],
         lat=city["lat"],
         lng=city["lng"])
-    session.add(city_to_upload)
-    session.commit()
+    if not city["id_"] in existing_ids:
+        session.add(city_to_upload)
+        session.commit()
