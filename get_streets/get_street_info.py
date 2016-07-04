@@ -9,7 +9,7 @@ from shapely.geometry import Polygon as pg
 from shapely.geometry import Point
 
 def get_street_name(issue):
-    base_url="http://localhost/nominatim/reverse"
+    base_url="http://localhost:3535/nominatim/reverse"
     params={
         "format":"json",
         "lat":issue["lat"],
@@ -60,7 +60,7 @@ def get_segment_length(geojson,city):
     return length
 
 def get_street_length(street_name,city):
-    base_url="http://localhost/nominatim/search"
+    base_url="http://localhost:3535/nominatim/search"
     params={
         "format":"json",
         "street":street_name,

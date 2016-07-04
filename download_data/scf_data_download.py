@@ -74,7 +74,9 @@ def download_issues(request_type_ids,city):
                             "lng":document["lng"],
                             "lat":document["lat"],
                             "summary":document["summary"],
-                            "description":document["description"]})
+                            "description":document["description"],
+                            "acknowledged_at":document["acknowledged_at"],
+                            "closed_at":document["closed_at"]})
                         break
             page+=1
 

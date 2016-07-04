@@ -45,18 +45,23 @@ def k_means_clustering(lngs,lats,city, cluster_diameter):
     lngs = np.array(lngs)*math.cos(city_lat)
 
     ## using n_issues/5 to determine k
-    ## not the most objective method, but its a start...
-    kmeans = KMeans(n_clusters = int(city_area/(cluster_diameter**2)))
-    kmeans.fit(np.array([lngs,lats]).transpose())
+    ## not the most objective method, but its a start...\
+    n_clusters = int(len(lngs)/10.)
 
-    cluster_labels = np.array(kmeans.labels_)
-    ## use labels_to_index function to get
-    ## output from cluster labels...
-    return labels_to_index(cluster_labels)
+    if n_clusters>0:
+        kmeans = KMeans(n_clusters=n_clusters)
+        kmeans.fit(np.array([lngs,lats]).transpose())
+
+        cluster_labels = np.array(kmeans.labels_)
+        ## use labels_to_index function to get
+        ## output from cluster labels...
+        return labels_to_index(cluster_labels)
+    else:
+        return []
 
 def get_distance(coord1,coord2):
     R=3961.*5280
-    dlon = (math.pi/180.)*(coord1[0]-coord2[0])
+    dlon = (math.pi/180.)*(coord1[0]-coord2[0])*math.cos(coord1[1]*math.pi/180)
     dlat = (math.pi/180.)*(coord1[1]-coord2[1])
     a=dlat**2.+dlon**2.
     c=math.sqrt(a)
